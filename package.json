@@ -1,0 +1,31 @@
+{
+  "name": "miego",
+  "version": "0.0.1",
+  "description": "better way to use mongoDB",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erfanium/miego"
+  },
+  "bugs": {
+    "url": "https://github.com/erfanium/miego/issues"
+  },
+  "scripts": {
+    "start": "ts-node test.ts"
+  },
+  "keywords": [
+    "mongoDB"
+  ],
+  "author": "Erfanium",
+  "license": "MIT",
+  "dependencies": {
+    "@types/mongodb": "^3.3.16",
+    "mongodb": "^3.5.4",
+    "ramda": "^0.27.0"
+  },
+  "devDependencies": {
+    "@types/ramda": "^0.26.42",
+    "ts-node": "^8.6.2",
+    "tslint": "^6.0.0",
+    "typescript": "^3.8.2"
+  }
+}
