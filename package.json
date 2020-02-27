@@ -1,6 +1,6 @@
 {
   "name": "miego",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "better way to use mongoDB",
   "repository": {
     "type": "git",
