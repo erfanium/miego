@@ -6,6 +6,8 @@ import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './metho
 import insertMany, { InsertManyMethodParams, InsertManyMethodResult } from './methods/insertMany'
 import deleteOne, { DeleteOneMethodParams, DeleteOneMethodResult } from './methods/deleteOne'
 import deleteAll, { DeleteAllMethodParams, DeleteAllMethodResult } from './methods/deleteAll'
+import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne'
+import updateAll, { UpdateAllMethodParams, UpdateAllMethodResult } from './methods/updateAll'
 
 interface ConstructorOptions {}
 
@@ -19,10 +21,12 @@ interface PaginationOptions {
 
 const defaultOptions: Options = {
    pagination: {
-      defaultPageSize: 10,
-   },
+      defaultPageSize: 10
+   }
 }
-
+export interface ValidModel {
+   [key: string]: any
+}
 export class Collection<M> {
    public readonly name: string
    base: mongodb.Collection
@@ -43,7 +47,7 @@ export class Collection<M> {
    getBase(): mongodb.Collection {
       if (this.isConnecting)
          throw new Error(
-            "Collection connection not yet connected, Use query's ONLY when connection is connected, For example use await for connect method",
+            "Collection connection not yet connected, Use query's ONLY when connection is connected, For example use await for connect method"
          )
       if (this.base) return this.base
       throw new Error('No base found')
@@ -73,5 +77,11 @@ export class Collection<M> {
    }
    deleteAll(argA: DeleteAllMethodParams<M>): DeleteAllMethodResult {
       return deleteAll<M>(argA, this)
+   }
+   updateOne(argA: UpdateOneMethodParams<M>): UpdateOneMethodResult {
+      return updateOne<M>(argA, this)
+   }
+   updateAll(argA: UpdateAllMethodParams<M>): UpdateAllMethodResult {
+      return updateAll<M>(argA, this)
    }
 }

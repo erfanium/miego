@@ -10,30 +10,24 @@ const post = new Collection<Post>('post')
 async function doo() {
    await post.connect()
 
-   // post.insertOne({
-   //    data: {
-   //       creator: 'erf',
-   //       text: 'hi',
+   // await post.base.createIndex(
+   //    {
+   //       creator: 1
    //    },
-   // })
-
-   // const result = await post.insertMany({
-   //    data: [
-   //       {
-   //          creator: 'ali',
-   //          text: 'hi im ali',
-   //       },
-   //       {
-   //          creator: 'hos',
-   //          text: 'hi im hos',
-   //       },
-   //    ],
-   // })
-   const result = await post.deleteOne({
-      query: {
-         creator: 'hos',
+   //    { unique: true }
+   // )
+   // @ts-ignore
+   const result = await post.updateAll({
+      query: { text: 'hi' },
+      update: {
+         $set: {
+            creator: 'x'
+         }
       },
+      upsert: true
    })
+
+   console.log(result)
 }
 
 doo()

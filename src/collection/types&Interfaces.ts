@@ -1,5 +1,9 @@
 // type Optional<T> = { [P in keyof T]? : T[P] }
-import { ObjectID } from 'mongodb'
+import { WriteError, ObjectID } from 'mongodb'
+
+export interface AnyObject {
+   [key: string]: any
+}
 
 export type ModelWithId<M> = {
    _id: ObjectID
@@ -11,7 +15,7 @@ export type ModelWithOptionalId<M> = {
 
 export type DocumentFindResult<M> = ModelWithId<M> & CreatedAt
 
-export type FindQuery<M> =
+export type FindOrUpdateQuery<M> =
    | ({
         [key in keyof ModelWithId<M>]?: ModelWithId<M>[key]
      } &
@@ -33,12 +37,8 @@ export interface OptionalPagination {
    pageSize?: number
 }
 
-export type OptionalSortKeys<M> = keyof ModelWithOptionalId<M> | string
-
 export type OptionalSort<M> = {
-   sort?: {
-      [key in OptionalSortKeys<M>]?: -1 | 1
-   }
+   sort?: string
 }
 
 export interface OptionalMap {
@@ -49,14 +49,24 @@ export interface OptionalNumbering {
    numbering?: boolean
 }
 
-export type CurserOptions<M> = {
-   returnCurser?: boolean
-} & OptionalPagination &
-   OptionalSort<M> &
-   OptionalMap &
-   OptionalNumbering
+export type CurserOptions<M> = OptionalPagination & OptionalSort<M> & OptionalMap & OptionalNumbering
 
 export interface DeleteResult {
    deletedCount: number
    ok: boolean
+}
+
+export interface UpdateResult {
+   updatedCount: number
+   upsertedCount: number
+   matchedCount: number
+   upsertedId?: { _id: ObjectID }
+   ok: boolean
+}
+
+export type InsertWriteOpResult<M> = {
+   insertedCount: number
+   ops: Array<ModelWithId<M> & CreatedAt>
+   insertedIds: { [key: number]: ObjectID }
+   result: { ok: number; n: number; errors?: Array<WriteError> }
 }

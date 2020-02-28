@@ -1,10 +1,10 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentFindResult, OptionalPopulate, CurserOptions, OptionalSortKeys } from '../types&Interfaces'
-import { getDocumentCreatedAt } from '../utils'
+import { FindOrUpdateQuery, DocumentFindResult, OptionalPopulate, CurserOptions } from '../types&Interfaces'
+import { getDocumentCreatedAt, getSortDetail } from '../utils'
 import mongodb from 'mongodb'
 
 export type FindAllMethodParams<M> = {
-   query: FindQuery<M>
+   query: FindOrUpdateQuery<M>
 } & OptionalPopulate &
    CurserOptions<M>
 
@@ -24,11 +24,11 @@ export default function findAll<M>(params: FindAllMethodParams<M>, collection: C
    }
 
    if (params.sort) {
-      const [key] = Object.keys(params.sort) as Array<OptionalSortKeys<M>>
-      curser.sort(key as string, params.sort[key])
+      const detail = getSortDetail(params.sort)
+      curser.sort(detail.sortKey, detail.direction)
    }
 
-   curser.map((doc) => {
+   curser.map(doc => {
       doc._createdAt = getDocumentCreatedAt(doc)
       if (params.numbering) {
          numberingStartAt++
@@ -37,8 +37,6 @@ export default function findAll<M>(params: FindAllMethodParams<M>, collection: C
       if (params.map) return params.map(doc) // this is not Array.map
       return doc
    })
-
-   if (params.returnCurser === true) return curser
 
    return curser.toArray()
 }
