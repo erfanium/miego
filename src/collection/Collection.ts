@@ -1,5 +1,6 @@
 import mongodb from 'mongodb'
 import Connection from '../connection/Connection'
+import { WriteConcernOptions, DocumentResult, DocumentAfterTransform } from './types&Interfaces'
 import findOne, { FindOneMethodParams, FindOneMethodResult } from './methods/findOne'
 import findAll, { FindAllMethodParams, FindAllMethodResult } from './methods/findAll'
 import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './methods/insertOne'
@@ -8,21 +9,34 @@ import deleteOne, { DeleteOneMethodParams, DeleteOneMethodResult } from './metho
 import deleteAll, { DeleteAllMethodParams, DeleteAllMethodResult } from './methods/deleteAll'
 import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne'
 import updateAll, { UpdateAllMethodParams, UpdateAllMethodResult } from './methods/updateAll'
+import count, { CountMethodParams, CountMethodResult } from './methods/count'
+import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete'
+import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate'
 
-interface ConstructorOptions {}
+interface ConstructorSettings {}
 
-interface Options {
-   pagination: PaginationOptions
+interface Settings {
+   pagination: PaginationSettings
+   writeConcern: WriteConcernOptions
+   transform: {
+      createdAt?: boolean
+   }
+   indexes: {}
 }
 
-interface PaginationOptions {
+interface PaginationSettings {
    defaultPageSize: number
 }
 
-const defaultOptions: Options = {
+const defaultSettings: Settings = {
    pagination: {
       defaultPageSize: 10
-   }
+   },
+   writeConcern: {},
+   transform: {
+      createdAt: true
+   },
+   indexes: {}
 }
 export interface ValidModel {
    [key: string]: any
@@ -31,9 +45,9 @@ export class Collection<M> {
    public readonly name: string
    base: mongodb.Collection
    isConnecting: boolean = false
-   options: Options
-   constructor(name: string, opts?: ConstructorOptions) {
-      this.options = defaultOptions
+   settings: Settings
+   constructor(name: string, opts?: ConstructorSettings) {
+      this.settings = defaultSettings
       this.name = name
    }
    setConnection(client: mongodb.MongoClient, dbName?: string): void {
@@ -44,7 +58,7 @@ export class Collection<M> {
       this.isConnecting = false
       this.base = db.collection(this.name)
    }
-   getBase(): mongodb.Collection {
+   useNative(): mongodb.Collection {
       if (this.isConnecting)
          throw new Error(
             "Collection connection not yet connected, Use query's ONLY when connection is connected, For example use await for connect method"
@@ -60,6 +74,20 @@ export class Collection<M> {
       this.setConnection(connection, dbName)
       return client
    }
+   transformDocument(d: DocumentResult<M>): DocumentAfterTransform<M> {
+      if (!d) return undefined
+      const result: DocumentAfterTransform<M> = d
+      if (d._id && this.settings.transform.createdAt) result._createdAt = d._id.getTimestamp()
+
+      return result
+   }
+   aggregate(p?: object[], options?: mongodb.CollectionAggregationOptions) {
+      return this.useNative().aggregate(p, options)
+   }
+   bulkWrite(operations: object[], options?: mongodb.CollectionBulkWriteOptions) {
+      return this.useNative().bulkWrite(operations, options)
+   }
+
    findOne(argA: FindOneMethodParams<M>): FindOneMethodResult<M> {
       return findOne(argA, this)
    }
@@ -83,5 +111,14 @@ export class Collection<M> {
    }
    updateAll(argA: UpdateAllMethodParams<M>): UpdateAllMethodResult {
       return updateAll<M>(argA, this)
+   }
+   count(argA: CountMethodParams<M>): CountMethodResult {
+      return count<M>(argA, this)
+   }
+   findOneAndDelete(argA: FindOneAndDeleteParams<M>): FindOneAndDeleteResult<M> {
+      return findOneAndDelete<M>(argA, this)
+   }
+   findOneAndUpdate(argA: FindOneAndUpdateParams<M>): FindOneAndUpdateResult<M> {
+      return findOneAndUpdate<M>(argA, this)
    }
 }

@@ -13,7 +13,18 @@ export type ModelWithOptionalId<M> = {
    _id?: ObjectID
 } & M
 
-export type DocumentFindResult<M> = ModelWithId<M> & CreatedAt
+export type DocumentResult<M> = {
+   _id?: ObjectID
+} & {
+   [key in keyof M]?: M[key] extends ObjectID ? any : M[key]
+}
+
+export type DocumentAfterTransform<M> = {
+   _id?: ObjectID
+   _createdAt?: Date
+} & {
+   [key in keyof M]?: M[key] extends ObjectID ? any : M[key]
+}
 
 export type FindOrUpdateQuery<M> =
    | ({
@@ -45,11 +56,7 @@ export interface OptionalMap {
    map?: (d: any) => any
 }
 
-export interface OptionalNumbering {
-   numbering?: boolean
-}
-
-export type CurserOptions<M> = OptionalPagination & OptionalSort<M> & OptionalMap & OptionalNumbering
+export type CurserOptions<M> = OptionalPagination & OptionalSort<M> & OptionalMap
 
 export interface DeleteResult {
    deletedCount: number
@@ -69,4 +76,10 @@ export type InsertWriteOpResult<M> = {
    ops: Array<ModelWithId<M> & CreatedAt>
    insertedIds: { [key: number]: ObjectID }
    result: { ok: number; n: number; errors?: Array<WriteError> }
+}
+
+export interface WriteConcernOptions {
+   w?: number | 'majority' | string
+   j?: boolean
+   wtimeout?: number
 }

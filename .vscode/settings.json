@@ -1,3 +1,9 @@
 {
-   "cSpell.words": ["miego", "mongodb", "upsert", "upserted"]
+   "cSpell.words": [
+      "miego",
+      "mongodb",
+      "upsert",
+      "upserted",
+      "wtimeout"
+   ]
 }

@@ -5,7 +5,7 @@ interface Post {
    text: string
 }
 
-const post = new Collection<Post>('post')
+const post = new Collection<Post>('posts')
 
 async function doo() {
    await post.connect()
@@ -17,15 +17,7 @@ async function doo() {
    //    { unique: true }
    // )
    // @ts-ignore
-   const result = await post.updateAll({
-      query: { text: 'hi' },
-      update: {
-         $set: {
-            creator: 'x'
-         }
-      },
-      upsert: true
-   })
+   const result = await post.useNative().findAnd
 
    console.log(result)
 }

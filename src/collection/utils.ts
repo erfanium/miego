@@ -1,9 +1,3 @@
-import { ModelWithId } from './types&Interfaces'
-export function getDocumentCreatedAt<M>(doc: ModelWithId<M>): Date {
-   if (!doc._id) return undefined
-   return doc._id.getTimestamp()
-}
-
 export function getSortDetail(s: string): { sortKey: string; direction: -1 | 1 } {
    if (s.startsWith('-')) {
       return {

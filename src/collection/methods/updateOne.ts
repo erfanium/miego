@@ -1,19 +1,26 @@
 import { Collection } from '../Collection'
-import { FindOrUpdateQuery, UpdateResult, AnyObject } from '../types&Interfaces'
+import { FindOrUpdateQuery, UpdateResult, AnyObject, WriteConcernOptions } from '../types&Interfaces'
+import { merge } from 'ramda'
 
 export type UpdateOneMethodParams<M> = {
    query: FindOrUpdateQuery<M>
    update: FindOrUpdateQuery<M>
    upsert?: boolean
    arrayFilters?: Array<AnyObject>
+   writeConcern?: WriteConcernOptions
 }
 
 export type UpdateOneMethodResult = Promise<UpdateResult>
 
 export default async function updateOne<M>(params: UpdateOneMethodParams<M>, collection: Collection<M>): UpdateOneMethodResult {
-   const result = await collection.getBase().updateOne(params.query, params.update, {
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+
+   const result = await collection.useNative().updateOne(params.query, params.update, {
       upsert: params.upsert || false,
-      arrayFilters: params.arrayFilters
+      arrayFilters: params.arrayFilters,
+      j: writeConcern.j,
+      w: writeConcern.w,
+      wtimeout: writeConcern.wtimeout
    })
    return {
       updatedCount: result.modifiedCount,

@@ -1,17 +1,25 @@
 import { Collection } from '../Collection'
-import { DocumentFindResult, ModelWithOptionalId } from '../types&Interfaces'
-import { getDocumentCreatedAt } from '../utils'
+import { DocumentResult, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
+import { merge } from 'ramda'
 
-export type InsertOneMethodParams<M> = ModelWithOptionalId<M>
+export interface InsertOneMethodParams<M> {
+   entity: ModelWithOptionalId<M>
+   writeConcern?: WriteConcernOptions
+}
 
-export type InsertOneMethodResult<M> = Promise<DocumentFindResult<M>>
+export type InsertOneMethodResult<M> = Promise<DocumentResult<M>>
 
 export default async function insertOne<M>(params: InsertOneMethodParams<M>, collection: Collection<M>): InsertOneMethodResult<M> {
-   const doc = await collection
-      .getBase()
-      .insertOne(params)
-      .then(r => r.ops[0])
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
 
-   if (doc) doc._createdAt = getDocumentCreatedAt(doc)
-   return doc
+   const doc = await collection
+      .useNative()
+      .insertOne(params.entity, {
+         w: writeConcern.w,
+         j: writeConcern.j,
+         wtimeout: writeConcern.wtimeout
+      })
+      .then((r) => r.ops[0])
+
+   return collection.transformDocument(doc)
 }

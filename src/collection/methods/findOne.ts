@@ -1,15 +1,15 @@
 import { Collection } from '../Collection'
-import { FindOrUpdateQuery, DocumentFindResult, OptionalPopulate } from '../types&Interfaces'
-import { getDocumentCreatedAt } from '../utils'
+import { FindOrUpdateQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
 
 export type FindOneMethodParams<M> = {
    query: FindOrUpdateQuery<M>
 } & OptionalPopulate
 
-export type FindOneMethodResult<M> = Promise<DocumentFindResult<M> | undefined>
+export type FindOneMethodResult<M> = Promise<DocumentResult<M> | undefined>
 
-export default async function findOne<M>(params: FindOneMethodParams<M>, collection: Collection<M>): FindOneMethodResult<M> {
-   const doc = await collection.getBase().findOne(params.query)
-   if (doc) doc._createdAt = getDocumentCreatedAt(doc)
-   return doc
+export default function findOne<M>(params: FindOneMethodParams<M>, collection: Collection<M>): FindOneMethodResult<M> {
+   return collection
+      .useNative()
+      .findOne(params.query)
+      .then(collection.transformDocument)
 }
