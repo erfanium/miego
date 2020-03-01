@@ -1,0 +1,15 @@
+{
+   "transform": {
+      "^.+\\.ts?$": "ts-jest"
+   },
+   "testRegex": "\\.(spec|test)\\.ts?$",
+   "moduleFileExtensions": ["js", "ts"],
+   "modulePaths": ["<rootDir>/src/"],
+   "testEnvironment": "node",
+   "forceExit": true,
+   "clearMocks": true,
+   "collectCoverage": true,
+   "collectCoverageFrom": ["<rootDir>/src/**/*.ts"],
+   "coverageDirectory": "./coverage",
+   "coveragePathIgnorePatterns": ["/dist", "/node_modules/", "__mocks__"]
+}

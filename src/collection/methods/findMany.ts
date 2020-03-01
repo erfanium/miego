@@ -1,19 +1,19 @@
 import { Collection } from '../Collection'
-import { FindOrUpdateQuery, DocumentResult, OptionalPopulate, CurserOptions } from '../types&Interfaces'
+import { FindQuery, DocumentResult, OptionalPopulate, CurserOptions } from '../types&Interfaces'
 import { getSortDetail } from '../utils'
 
-export type FindAllMethodParams<M> = {
-   query: FindOrUpdateQuery<M>
+export type FindManyMethodParams<M> = {
+   query: FindQuery<M>
 } & OptionalPopulate &
    CurserOptions<M>
 
-export type FindAllMethodResult<M> = Promise<Array<DocumentResult<M> | undefined>>
+export type FindManyMethodResult<M> = Promise<Array<DocumentResult<M> | undefined>>
 
-export default function findAll<M>(params: FindAllMethodParams<M>, collection: Collection<M>): FindAllMethodResult<M> {
+export default function findMany<M>(params: FindManyMethodParams<M>, collection: Collection<M>): FindManyMethodResult<M> {
    const curser = collection.useNative().find(params.query)
 
    if (params.page) {
-      const pageSize = params.pageSize || collection.settings.pagination.defaultPageSize
+      const pageSize = params.pageSize || this.settings.pagination.defaultPageSize
       curser.limit(pageSize)
       curser.skip((params.page - 1) * pageSize)
    }

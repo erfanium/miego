@@ -1,8 +1,8 @@
-import { Collection } from '../Collection'
-import { FindOrUpdateQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
+import { FindQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
+import { Collection } from 'collection/Collection'
 
 export type FindOneMethodParams<M> = {
-   query: FindOrUpdateQuery<M>
+   query: FindQuery<M>
 } & OptionalPopulate
 
 export type FindOneMethodResult<M> = Promise<DocumentResult<M> | undefined>
@@ -11,5 +11,5 @@ export default function findOne<M>(params: FindOneMethodParams<M>, collection: C
    return collection
       .useNative()
       .findOne(params.query)
-      .then(collection.transformDocument)
+      .then(this.transformDocument)
 }

@@ -2,10 +2,10 @@ enum LogLevels {
    debug = 1,
    info = 2,
    warn = 3,
-   error = 4,
+   error = 4
 }
 
-export let logLevel: LogLevels = getGlobalLogLevel()
+export const logLevel: LogLevels = getGlobalLogLevel()
 
 export class Logger {
    logLevel: LogLevels

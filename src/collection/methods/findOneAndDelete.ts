@@ -1,10 +1,10 @@
 import { Collection } from '../Collection'
-import { FindOrUpdateQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
+import { FindQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
 import { getSortDetail } from '../utils'
 import { FindOneAndDeleteOption } from 'mongodb'
 
 export type FindOneAndDeleteParams<M> = {
-   query: FindOrUpdateQuery<M>
+   query: FindQuery<M>
    sort?: string
    maxTimeMS?: number
 } & OptionalPopulate

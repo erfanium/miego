@@ -1,5 +1,5 @@
 // type Optional<T> = { [P in keyof T]? : T[P] }
-import { WriteError, ObjectID } from 'mongodb'
+import mongodb, { WriteError, ObjectID } from 'mongodb'
 
 export interface AnyObject {
    [key: string]: any
@@ -26,7 +26,7 @@ export type DocumentAfterTransform<M> = {
    [key in keyof M]?: M[key] extends ObjectID ? any : M[key]
 }
 
-export type FindOrUpdateQuery<M> =
+export type FindQuery<M> =
    | ({
         [key in keyof ModelWithId<M>]?: ModelWithId<M>[key]
      } &
@@ -34,6 +34,8 @@ export type FindOrUpdateQuery<M> =
    | {
         [key: string]: any
      }
+
+export type UpdateQuery<M> = mongodb.UpdateQuery<ModelWithId<M>>
 
 export interface CreatedAt {
    _createdAt: Date

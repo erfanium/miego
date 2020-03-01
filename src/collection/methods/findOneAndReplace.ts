@@ -1,12 +1,12 @@
 import { Collection } from '../Collection'
-import { FindOrUpdateQuery, DocumentResult, OptionalPopulate, WriteConcernOptions } from '../types&Interfaces'
+import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, ModelWithOptionalId } from '../types&Interfaces'
 import { getSortDetail } from '../utils'
 import { FindOneAndReplaceOption } from 'mongodb'
 import { merge } from 'ramda'
 
 export type FindOneAndReplaceParams<M> = {
-   query: FindOrUpdateQuery<M>
-   replace: FindOrUpdateQuery<M>
+   query: FindQuery<M>
+   replace: ModelWithOptionalId<M>
    sort?: string
    writeConcern?: WriteConcernOptions
    new?: boolean
@@ -17,7 +17,7 @@ export type FindOneAndReplaceParams<M> = {
 export type FindOneAndReplaceResult<M> = Promise<DocumentResult<M> | undefined>
 
 export default function findOneAndReplace<M>(params: FindOneAndReplaceParams<M>, collection: Collection<M>): FindOneAndReplaceResult<M> {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
 
    const options: FindOneAndReplaceOption = {
       w: writeConcern.w,

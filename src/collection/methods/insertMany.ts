@@ -28,7 +28,7 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
       }
    }
 
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
 
    if (params.skipWriteError === undefined) params.skipWriteError = true
 

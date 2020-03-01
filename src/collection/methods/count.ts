@@ -1,8 +1,8 @@
 import { Collection } from '../Collection'
-import { FindOrUpdateQuery } from '../types&Interfaces'
+import { FindQuery } from '../types&Interfaces'
 
 export type CountMethodParams<M> = {
-   query?: FindOrUpdateQuery<M>
+   query?: FindQuery<M>
    estimation?: boolean
    limit?: number
    skip?: number

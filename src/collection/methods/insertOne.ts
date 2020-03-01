@@ -10,7 +10,7 @@ export interface InsertOneMethodParams<M> {
 export type InsertOneMethodResult<M> = Promise<DocumentResult<M>>
 
 export default async function insertOne<M>(params: InsertOneMethodParams<M>, collection: Collection<M>): InsertOneMethodResult<M> {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
 
    const doc = await collection
       .useNative()

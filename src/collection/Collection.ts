@@ -2,16 +2,17 @@ import mongodb from 'mongodb'
 import Connection from '../connection/Connection'
 import { WriteConcernOptions, DocumentResult, DocumentAfterTransform } from './types&Interfaces'
 import findOne, { FindOneMethodParams, FindOneMethodResult } from './methods/findOne'
-import findAll, { FindAllMethodParams, FindAllMethodResult } from './methods/findAll'
+import findMany, { FindManyMethodParams, FindManyMethodResult } from './methods/findMany'
 import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './methods/insertOne'
 import insertMany, { InsertManyMethodParams, InsertManyMethodResult } from './methods/insertMany'
 import deleteOne, { DeleteOneMethodParams, DeleteOneMethodResult } from './methods/deleteOne'
-import deleteAll, { DeleteAllMethodParams, DeleteAllMethodResult } from './methods/deleteAll'
+import deleteMany, { DeleteManyMethodParams, DeleteManyMethodResult } from './methods/deleteMany'
 import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne'
-import updateAll, { UpdateAllMethodParams, UpdateAllMethodResult } from './methods/updateAll'
+import updateMany, { UpdateManyMethodParams, UpdateManyMethodResult } from './methods/updateMany'
 import count, { CountMethodParams, CountMethodResult } from './methods/count'
 import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete'
 import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate'
+import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/fIndManyAndReturnObject'
 
 interface ConstructorSettings {}
 
@@ -91,8 +92,8 @@ export class Collection<M> {
    findOne(argA: FindOneMethodParams<M>): FindOneMethodResult<M> {
       return findOne(argA, this)
    }
-   findAll(argA: FindAllMethodParams<M>): FindAllMethodResult<M> {
-      return findAll<M>(argA, this)
+   findMany(argA: FindManyMethodParams<M>): FindManyMethodResult<M> {
+      return findMany<M>(argA, this)
    }
    insertOne(argA: InsertOneMethodParams<M>): InsertOneMethodResult<M> {
       return insertOne<M>(argA, this)
@@ -103,14 +104,14 @@ export class Collection<M> {
    deleteOne(argA: DeleteOneMethodParams<M>): DeleteOneMethodResult {
       return deleteOne<M>(argA, this)
    }
-   deleteAll(argA: DeleteAllMethodParams<M>): DeleteAllMethodResult {
-      return deleteAll<M>(argA, this)
+   deleteMany(argA: DeleteManyMethodParams<M>): DeleteManyMethodResult {
+      return deleteMany<M>(argA, this)
    }
    updateOne(argA: UpdateOneMethodParams<M>): UpdateOneMethodResult {
       return updateOne<M>(argA, this)
    }
-   updateAll(argA: UpdateAllMethodParams<M>): UpdateAllMethodResult {
-      return updateAll<M>(argA, this)
+   updateMany(argA: UpdateManyMethodParams<M>): UpdateManyMethodResult {
+      return updateMany<M>(argA, this)
    }
    count(argA: CountMethodParams<M>): CountMethodResult {
       return count<M>(argA, this)
@@ -120,5 +121,8 @@ export class Collection<M> {
    }
    findOneAndUpdate(argA: FindOneAndUpdateParams<M>): FindOneAndUpdateResult<M> {
       return findOneAndUpdate<M>(argA, this)
+   }
+   findManyAndReturnObject(argA: FindManyAndReturnObjectParams<M>): FindManyAndReturnObjectResult<M> {
+      return findManyAndReturnObject<M>(argA, this)
    }
 }
