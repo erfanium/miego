@@ -13,7 +13,7 @@ export type UpdateOneMethodParams<M> = {
 export type UpdateOneMethodResult = Promise<UpdateResult>
 
 export default async function updateOne<M>(params: UpdateOneMethodParams<M>, collection: Collection<M>): UpdateOneMethodResult {
-   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
 
    const result = await collection.useNative().updateOne(params.query, params.update, {
       upsert: params.upsert || false,

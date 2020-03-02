@@ -28,5 +28,8 @@ export default function findMany<M>(params: FindManyMethodParams<M>, collection:
       return collection.transformDocument(doc)
    })
 
-   return curser.toArray()
+   return curser.toArray().then((docs) => {
+      if (params.populate) collection.populator.populate(docs, params.populate)
+      return docs
+   })
 }

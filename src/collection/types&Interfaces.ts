@@ -42,7 +42,7 @@ export interface CreatedAt {
 }
 
 export interface OptionalPopulate {
-   populate?: [string]
+   populate?: string[]
 }
 
 export interface OptionalPagination {

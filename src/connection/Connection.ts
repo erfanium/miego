@@ -4,10 +4,10 @@ import ramda from 'ramda'
 
 const defaultUrl = 'mongodb://localhost:27017'
 const defaultOptions: MongoClientOptions = {
-   useUnifiedTopology: true,
+   useUnifiedTopology: true
 }
 
-export default class Connection extends MongoClient {
+export class Connection extends MongoClient {
    public readonly url: string
    logger: Logger
    static getConnection(url?: string, opts?: MongoClientOptions): MongoClient {

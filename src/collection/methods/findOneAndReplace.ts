@@ -17,7 +17,7 @@ export type FindOneAndReplaceParams<M> = {
 export type FindOneAndReplaceResult<M> = Promise<DocumentResult<M> | undefined>
 
 export default function findOneAndReplace<M>(params: FindOneAndReplaceParams<M>, collection: Collection<M>): FindOneAndReplaceResult<M> {
-   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
 
    const options: FindOneAndReplaceOption = {
       w: writeConcern.w,

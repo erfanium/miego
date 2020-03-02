@@ -13,7 +13,7 @@ export type UpdateManyMethodParams<M> = {
 export type UpdateManyMethodResult = Promise<UpdateResult>
 
 export default async function updateMany<M>(params: UpdateManyMethodParams<M>, collection: Collection<M>): UpdateManyMethodResult {
-   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
 
    const result = await collection.useNative().updateMany(params.query, params.update, {
       upsert: params.upsert || false,

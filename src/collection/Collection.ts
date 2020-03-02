@@ -1,6 +1,7 @@
 import mongodb from 'mongodb'
-import Connection from '../connection/Connection'
-import { WriteConcernOptions, DocumentResult, DocumentAfterTransform } from './types&Interfaces'
+import { Connection } from '../connection/Connection'
+import { merge } from 'ramda'
+import { WriteConcernOptions, DocumentResult, DocumentAfterTransform, AnyObject } from './types&Interfaces'
 import findOne, { FindOneMethodParams, FindOneMethodResult } from './methods/findOne'
 import findMany, { FindManyMethodParams, FindManyMethodResult } from './methods/findMany'
 import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './methods/insertOne'
@@ -13,8 +14,20 @@ import count, { CountMethodParams, CountMethodResult } from './methods/count'
 import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete'
 import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate'
 import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/fIndManyAndReturnObject'
+import { Populator, KeySetting } from './Populator'
 
-interface ConstructorSettings {}
+interface ConstructorSettings {
+   connection?: Connection
+   pagination?: PaginationSettings
+   writeConcern?: WriteConcernOptions
+   transform?: {
+      createdAt?: boolean
+   }
+   populates?: {
+      [key: string]: KeySetting | Collection<AnyObject>
+   }
+   indexes?: {}
+}
 
 interface Settings {
    pagination: PaginationSettings
@@ -22,6 +35,7 @@ interface Settings {
    transform: {
       createdAt?: boolean
    }
+
    indexes: {}
 }
 
@@ -46,17 +60,25 @@ export class Collection<M> {
    public readonly name: string
    base: mongodb.Collection
    isConnecting: boolean = false
+   connected: boolean = false
    settings: Settings
-   constructor(name: string, opts?: ConstructorSettings) {
-      this.settings = defaultSettings
+   readonly populator: Populator<M>
+
+   constructor(name: string, settings?: ConstructorSettings) {
+      this.settings = merge(settings, defaultSettings)
       this.name = name
+      this.populator = new Populator(this, settings.populates)
+      if (settings.connection) this.setConnection(settings.connection)
    }
+
    setConnection(client: mongodb.MongoClient, dbName?: string): void {
       if (!client.isConnected) {
          throw new Error('Only connected connections can be set')
       }
       const db = dbName ? client.db(dbName) : client.db()
       this.isConnecting = false
+      this.connected = true
+
       this.base = db.collection(this.name)
    }
    useNative(): mongodb.Collection {
@@ -65,6 +87,7 @@ export class Collection<M> {
             "Collection connection not yet connected, Use query's ONLY when connection is connected, For example use await for connect method"
          )
       if (this.base) return this.base
+      if (!this.connected) throw new Error('Collection does not have connection yet')
       throw new Error('No base found')
    }
    async connect(url?: string, dbName?: string): Promise<mongodb.MongoClient> {
@@ -104,7 +127,7 @@ export class Collection<M> {
    deleteOne(argA: DeleteOneMethodParams<M>): DeleteOneMethodResult {
       return deleteOne<M>(argA, this)
    }
-   deleteMany(argA: DeleteManyMethodParams<M>): DeleteManyMethodResult {
+   deleteMany(argA: DeleteManyMethodParams<M> = {}): DeleteManyMethodResult {
       return deleteMany<M>(argA, this)
    }
    updateOne(argA: UpdateOneMethodParams<M>): UpdateOneMethodResult {

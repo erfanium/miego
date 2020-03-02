@@ -19,7 +19,7 @@ export type FindOneAndUpdateParams<M> = {
 export type FindOneAndUpdateResult<M> = Promise<DocumentResult<M> | undefined>
 
 export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M>, collection: Collection<M>): FindOneAndUpdateResult<M> {
-   const writeConcern = merge(this.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
 
    const options: FindOneAndUpdateOption = {
       w: writeConcern.w,

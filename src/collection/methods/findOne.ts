@@ -11,5 +11,9 @@ export default function findOne<M>(params: FindOneMethodParams<M>, collection: C
    return collection
       .useNative()
       .findOne(params.query)
-      .then(this.transformDocument)
+      .then(async (doc: DocumentResult<M>) => {
+         collection.transformDocument(doc)
+         if (params.populate) await collection.populator.populate([doc], params.populate)
+         return doc
+      })
 }
