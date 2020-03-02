@@ -1,4 +1,4 @@
-import { utils } from '../../src/collection/Populator'
+import { getIdsFromDoc } from '../../src/collection/Populator'
 import { ObjectID } from 'mongodb'
 
 describe('Populator', () => {
@@ -9,7 +9,7 @@ describe('Populator', () => {
          v: 1
       }
       const requiredIds: ObjectID[] = []
-      utils.getIdsFromDoc(doc, ['creator'], requiredIds)
+      getIdsFromDoc(doc, ['creator'], requiredIds)
       expect(requiredIds).toEqual([doc.creator])
    })
    it('getIdsFromDoc with nested Object', () => {
@@ -21,7 +21,7 @@ describe('Populator', () => {
          }
       }
       const requiredIds: ObjectID[] = []
-      utils.getIdsFromDoc(doc, ['b', 'g'], requiredIds)
+      getIdsFromDoc(doc, ['b', 'g'], requiredIds)
       expect(requiredIds).toEqual([doc.b.g])
    })
    it('getIdsFromDoc with Array of ObjectID', () => {
@@ -30,7 +30,7 @@ describe('Populator', () => {
          b: [new ObjectID(), new ObjectID()]
       }
       const requiredIds: ObjectID[] = []
-      utils.getIdsFromDoc(doc, ['b'], requiredIds)
+      getIdsFromDoc(doc, ['b'], requiredIds)
       expect(requiredIds).toEqual(doc.b)
    })
 
@@ -51,7 +51,7 @@ describe('Populator', () => {
          ]
       }
       const requiredIds: ObjectID[] = []
-      utils.getIdsFromDoc(doc, ['b', 'a'], requiredIds)
+      getIdsFromDoc(doc, ['b', 'a'], requiredIds)
       expect(requiredIds).toEqual([doc.b[0].a, doc.b[1].a])
    })
 })

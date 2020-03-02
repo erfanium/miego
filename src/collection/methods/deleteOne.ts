@@ -3,14 +3,14 @@ import { FindQuery, DeleteResult, WriteConcernOptions } from '../types&Interface
 import { merge } from 'ramda'
 
 export type DeleteOneMethodParams<M> = {
-   query: FindQuery<M>
+   query?: FindQuery<M>
    writeConcern?: WriteConcernOptions
    bypassValidation?: boolean
 }
 
 export type DeleteOneMethodResult = Promise<DeleteResult>
 
-export default async function deleteOne<M>(params: DeleteOneMethodParams<M>, collection: Collection<M>): DeleteOneMethodResult {
+export default async function deleteOne<M>(params: DeleteOneMethodParams<M> = {}, collection: Collection<M>): DeleteOneMethodResult {
    const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
    const result = await collection.useNative().deleteOne(params.query, {
       w: writeConcern.w,

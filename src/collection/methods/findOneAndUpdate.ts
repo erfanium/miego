@@ -1,6 +1,6 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
-import { getSortDetail } from '../utils'
+import { decodeSortDash } from '../utils'
 import { FindOneAndUpdateOption } from 'mongodb'
 import { merge } from 'ramda'
 
@@ -31,9 +31,10 @@ export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M>, c
       returnOriginal: !params.new
    }
    if (params.sort) {
-      const detail = getSortDetail(params.sort)
+      const [sortKey, direction] = decodeSortDash(params.sort)
+
       options.sort = {
-         [detail.sortKey]: detail.direction
+         [sortKey]: direction
       }
    }
    return collection

@@ -23,7 +23,7 @@ describe('populates', () => {
    beforeAll(async () => {
       if (!users) users = new Collection<User>('users', { connection })
       if (!posts) {
-         posts = new Collection('post', {
+         posts = new Collection('posts', {
             connection,
             populates: {
                creator: users

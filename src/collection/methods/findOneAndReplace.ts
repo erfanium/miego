@@ -1,6 +1,6 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, ModelWithOptionalId } from '../types&Interfaces'
-import { getSortDetail } from '../utils'
+import { decodeSortDash } from '../utils'
 import { FindOneAndReplaceOption } from 'mongodb'
 import { merge } from 'ramda'
 
@@ -28,9 +28,9 @@ export default function findOneAndReplace<M>(params: FindOneAndReplaceParams<M>,
       returnOriginal: !params.new
    }
    if (params.sort) {
-      const detail = getSortDetail(params.sort)
+      const [sortKey, direction] = decodeSortDash(params.sort)
       options.sort = {
-         [detail.sortKey]: detail.direction
+         [sortKey]: direction
       }
    }
    return collection

@@ -1,6 +1,6 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
-import { getSortDetail } from '../utils'
+import { decodeSortDash } from '../utils'
 import { FindOneAndDeleteOption } from 'mongodb'
 
 export type FindOneAndDeleteParams<M> = {
@@ -16,9 +16,9 @@ export default function findOneAndDelete<M>(params: FindOneAndDeleteParams<M>, c
       maxTimeMS: params.maxTimeMS
    }
    if (params.sort) {
-      const detail = getSortDetail(params.sort)
+      const [sortKey, direction] = decodeSortDash(params.sort)
       options.sort = {
-         [detail.sortKey]: detail.direction
+         [sortKey]: direction
       }
    }
    return collection

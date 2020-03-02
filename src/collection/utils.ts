@@ -1,15 +1,12 @@
-export function getSortDetail(s: string): { sortKey: string; direction: -1 | 1 } {
-   if (s.startsWith('-')) {
-      return {
-         sortKey: s.slice(1),
-         direction: -1
-      }
-   }
-   return {
-      sortKey: s,
-      direction: 1
-   }
+export function decodeSortDash(s: string): [string, -1 | 1] {
+   if (s.startsWith('-')) return [s.slice(1), -1]
+   return [s, 1]
 }
+export function decodeFieldDash(s: string): [string, 0 | 1] {
+   if (s.startsWith('-')) return [s.slice(1), 0]
+   return [s, 1]
+}
+
 export function isObject(a: any) {
    return !!a && a.constructor === Object
 }

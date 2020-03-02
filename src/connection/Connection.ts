@@ -17,9 +17,9 @@ export class Connection extends MongoClient {
       const options: MongoClientOptions = ramda.merge(defaultOptions, opts)
       super(url, options)
       this.url = url
-      this.logger = new Logger()
+      this.logger = new Logger(`CONNECTION ${this.url}`)
       this.on('serverOpening', () => {
-         this.logger.info(`Connected to ${this.url}`)
+         this.logger.info(`Connected`)
       })
    }
 }

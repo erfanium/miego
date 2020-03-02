@@ -1,20 +1,45 @@
-import { Collection } from './src/index'
+import { Collection, Connection } from './src/index'
+// import faker from 'faker'
+import { ObjectID } from 'mongodb'
+import http from 'http'
+
+const connection = new Connection()
 
 interface Post {
-   creator: string
+   creator: ObjectID
    text: string
 }
+interface User {
+   name: string
+}
 
-const post = new Collection<Post>('posts')
+const users = new Collection<User>('users', {
+   connection
+})
+
+const posts = new Collection<Post>('posts', {
+   connection,
+   populates: {
+      creator: users
+   }
+})
 
 async function doo() {
-   await post.connect()
+   await connection.connect()
 
-   const result = await post.findManyAndReturnObject({
-      query: {}
-   })
+   http
+      .createServer(async (req, res) => {
+         const result = await posts.findMany({
+            query: {},
+            page: 1,
+            populate: ['creator']
+         })
+         res.setHeader('Content-Type', 'application/json')
+         res.end(JSON.stringify(result))
+      })
+      .listen(3000)
 
-   console.log(result)
+   console.log('start')
 }
 
 doo()

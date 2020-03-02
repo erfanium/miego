@@ -18,80 +18,81 @@ interface PopulateDependency<M> {
 interface AnyObject {
    [key: string]: any
 }
+
 type SplittedKey = string[]
 
-export const utils = {
-   pushIfNotExist(toPush: any | any[], array: any[]) {
-      if (!toPush) return
-      if (Array.isArray(toPush)) {
-         toPush.forEach((v) => {
-            if (!v) return
-            if (!array.includes(v)) array.push(v)
-         })
-      }
-      if (!array.includes(toPush)) array.push(toPush)
-   },
-   // splitPopulateKeys(keys: string[]): SplittedKey[] {
-   //    return keys.map((key) => key.split('.'))
-   // },
-   getIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[]) {
-      if (!doc) return undefined
-      const value = doc[splittedKey[0]]
-      if (!value) return undefined
-      if (value instanceof ObjectID) return utils.pushIfNotExist(value, ids)
-      if (splittedKey[1]) {
-         if (Array.isArray(value)) value.forEach((d) => this.getIdsFromDoc(d, splittedKey.slice(1), ids))
-         if (isObject(value)) this.getIdsFromDoc(value, splittedKey.slice(1), ids)
-      }
-      if (Array.isArray(value)) {
-         value.forEach((v) => {
-            if (v instanceof ObjectID) return utils.pushIfNotExist(v, ids)
-            return undefined
-         })
-      }
-      return undefined
-   },
-   getIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: ObjectID[]): void {
-      if (!docs) return undefined
-      docs.forEach((doc) => this.getIdsFromDoc(doc, splittedKey, ids))
-      return undefined
-   },
-   replaceIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[], result: AnyObject): void {
-      if (!doc) return
-      const value = doc[splittedKey[0]]
-      if (!value) return
-      if (value instanceof ObjectID) {
-         doc[splittedKey[0]] = result[value.toString()]
-         return
-      }
-
-      if (splittedKey[1]) {
-         if (Array.isArray(value)) value.forEach((d) => this.getIdsFromDoc(d, splittedKey.slice(1), ids))
-         if (isObject(value)) this.getIdsFromDoc(value, splittedKey.slice(1), ids)
-      }
-      if (Array.isArray(value)) {
-         value.forEach((v) => {
-            if (v instanceof ObjectID) {
-               doc[splittedKey[0]] = result[v.toString()]
-               return
-            }
-            return
-         })
-      }
-      return
-   },
-   replaceIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: ObjectID[], result: AnyObject): void {
-      if (!docs) return undefined
-      docs.forEach((doc) => this.replaceIdsFromDoc(doc, splittedKey, ids, result))
-      return undefined
-   }
-}
 export interface KeySetting {
    target: Collection<{ [key: string]: any }>
    params: {
       populate?: string[]
       fields?: string[]
    }
+}
+
+function pushIfNotExist(toPush: any | any[], array: any[]) {
+   if (!toPush) return
+   if (Array.isArray(toPush)) {
+      toPush.forEach((v) => {
+         if (!v) return
+         if (!array.includes(v)) array.push(v)
+      })
+   }
+   if (!array.includes(toPush)) array.push(toPush)
+}
+
+export function getIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[]) {
+   if (!doc) return undefined
+   const value = doc[splittedKey[0]]
+   if (!value) return undefined
+   if (value instanceof ObjectID) return pushIfNotExist(value, ids)
+   if (splittedKey[1]) {
+      if (Array.isArray(value)) value.forEach((d) => this.getIdsFromDoc(d, splittedKey.slice(1), ids))
+      if (isObject(value)) this.getIdsFromDoc(value, splittedKey.slice(1), ids)
+   }
+   if (Array.isArray(value)) {
+      value.forEach((v) => {
+         if (v instanceof ObjectID) return pushIfNotExist(v, ids)
+         return undefined
+      })
+   }
+   return undefined
+}
+
+function getIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: ObjectID[]): void {
+   if (!docs) return undefined
+   docs.forEach((doc) => getIdsFromDoc(doc, splittedKey, ids))
+   return undefined
+}
+
+function replaceIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[], result: AnyObject): void {
+   if (!doc) return
+   const value = doc[splittedKey[0]]
+   if (!value) return
+   if (value instanceof ObjectID) {
+      doc[splittedKey[0]] = result[value.toString()]
+      return
+   }
+
+   if (splittedKey[1]) {
+      if (Array.isArray(value)) value.forEach((d) => replaceIdsFromDoc(d, splittedKey.slice(1), ids, result))
+      if (isObject(value)) replaceIdsFromDoc(value, splittedKey.slice(1), ids, result)
+   }
+   if (Array.isArray(value)) {
+      value.forEach((v) => {
+         if (v instanceof ObjectID) {
+            doc[splittedKey[0]] = result[v.toString()]
+            return
+         }
+         return
+      })
+   }
+   return
+}
+
+function replaceIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: ObjectID[], result: AnyObject): void {
+   if (!docs) return undefined
+   docs.forEach((doc) => replaceIdsFromDoc(doc, splittedKey, ids, result))
+   return undefined
 }
 
 export class Populator<M> {
@@ -123,9 +124,9 @@ export class Populator<M> {
       populateKeys.forEach((key: string) => {
          const populateKeySetting = this.keysSetting[key]
          if (!populateKeySetting) return
+         const splittedKey: SplittedKey = key.split('.')
 
          let dependency = populateDependencies.find((d) => d.target === populateKeySetting.target)
-         const splittedKey: SplittedKey = key.split('.')
          if (!dependency) {
             dependency = {
                target: populateKeySetting.target,
@@ -141,7 +142,7 @@ export class Populator<M> {
          dependency.keys.push(key)
 
          splittedKeys.push(splittedKey)
-         utils.pushIfNotExist(utils.getIdsFromDocs(docs, splittedKey, dependency.requiredIds), dependency.requiredIds)
+         pushIfNotExist(getIdsFromDocs(docs, splittedKey, dependency.requiredIds), dependency.requiredIds)
       })
 
       // fetch dependencies
@@ -166,9 +167,11 @@ export class Populator<M> {
 
       await Promise.all(promises)
 
+      // transform
+
       populateKeys.forEach((key: string, keyIndex) => {
          const dependency = populateDependencies.find((dependency) => dependency.keys.includes(key))
-         utils.replaceIdsFromDocs(docs, splittedKeys[keyIndex], dependency.requiredIds, dependency.result)
+         replaceIdsFromDocs(docs, splittedKeys[keyIndex], dependency.requiredIds, dependency.result)
       })
       return docs
    }

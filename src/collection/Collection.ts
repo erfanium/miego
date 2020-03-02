@@ -15,6 +15,7 @@ import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from
 import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate'
 import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/fIndManyAndReturnObject'
 import { Populator, KeySetting } from './Populator'
+import { Logger } from '../Logger'
 
 interface ConstructorSettings {
    connection?: Connection
@@ -59,27 +60,31 @@ export interface ValidModel {
 export class Collection<M> {
    public readonly name: string
    base: mongodb.Collection
+   client: mongodb.MongoClient
    isConnecting: boolean = false
    connected: boolean = false
    settings: Settings
+   logger: Logger
    readonly populator: Populator<M>
 
    constructor(name: string, settings?: ConstructorSettings) {
       this.settings = merge(settings, defaultSettings)
       this.name = name
       this.populator = new Populator(this, settings.populates)
+      this.logger = new Logger(`COLLECTION ${this.name}`)
       if (settings.connection) this.setConnection(settings.connection)
    }
 
-   setConnection(client: mongodb.MongoClient, dbName?: string): void {
-      if (!client.isConnected) {
-         throw new Error('Only connected connections can be set')
+   setConnection(client: mongodb.MongoClient): mongodb.Collection {
+      if (!client.isConnected()) {
+         this.client = client
+         return undefined
       }
-      const db = dbName ? client.db(dbName) : client.db()
+      this.base = client.db().collection(this.name)
+
       this.isConnecting = false
       this.connected = true
-
-      this.base = db.collection(this.name)
+      return this.base
    }
    useNative(): mongodb.Collection {
       if (this.isConnecting)
@@ -87,15 +92,22 @@ export class Collection<M> {
             "Collection connection not yet connected, Use query's ONLY when connection is connected, For example use await for connect method"
          )
       if (this.base) return this.base
+
+      if (this.client) {
+         return this.setConnection(this.client)
+      }
+
       if (!this.connected) throw new Error('Collection does not have connection yet')
       throw new Error('No base found')
    }
    async connect(url?: string, dbName?: string): Promise<mongodb.MongoClient> {
+      this.logger.info("it's better to create a separate connection and set it to Collection")
+      if (this.connected || this.isConnecting) return undefined
       const connection: mongodb.MongoClient = Connection.getConnection(url)
       this.isConnecting = true
 
       const client = await connection.connect()
-      this.setConnection(connection, dbName)
+      this.setConnection(connection)
       return client
    }
    transformDocument(d: DocumentResult<M>): DocumentAfterTransform<M> {

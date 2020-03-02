@@ -1,8 +1,17 @@
-import { getSortDetail } from '../../src/collection/utils'
-describe('getSortDetail', () => {
+import { decodeSortDash, decodeFieldDash } from '../../src/collection/utils'
+
+describe('decodeSortDash', () => {
    it('should work', () => {
-      expect(getSortDetail('_id')).toEqual({ sortKey: '_id', direction: 1 })
-      expect(getSortDetail('x')).toEqual({ sortKey: 'x', direction: 1 })
-      expect(getSortDetail('-_id')).toEqual({ sortKey: '_id', direction: -1 })
+      expect(decodeSortDash('_id')).toEqual(['_id', 1])
+      expect(decodeSortDash('x')).toEqual(['x', 1])
+      expect(decodeSortDash('-_id')).toEqual(['_id', -1])
+   })
+})
+
+describe('decodeFieldDash', () => {
+   it('should work', () => {
+      expect(decodeFieldDash('_id')).toEqual(['_id', 1])
+      expect(decodeFieldDash('x')).toEqual(['x', 1])
+      expect(decodeFieldDash('-_id')).toEqual(['_id', 0])
    })
 })
