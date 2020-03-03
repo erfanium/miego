@@ -1,20 +1,35 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
-import { decodeSortDash } from '../utils'
+import { decodeSortDash, decodeFieldDash } from '../utils'
 import { FindOneAndDeleteOption } from 'mongodb'
 
 export type FindOneAndDeleteParams<M> = {
-   query: FindQuery<M>
+   query?: FindQuery<M>
    sort?: string
    maxTimeMS?: number
+   fields?: string[]
 } & OptionalPopulate
 
 export type FindOneAndDeleteResult<M> = Promise<DocumentResult<M> | undefined>
 
-export default function findOneAndDelete<M>(params: FindOneAndDeleteParams<M>, collection: Collection<M>): FindOneAndDeleteResult<M> {
-   const options: FindOneAndDeleteOption = {
-      maxTimeMS: params.maxTimeMS
+interface IFindOneAndDeleteOption extends FindOneAndDeleteOption {
+   projection?: {
+      [k: string]: any
    }
+}
+
+export default function findOneAndDelete<M>(params: FindOneAndDeleteParams<M> = {}, collection: Collection<M>): FindOneAndDeleteResult<M> {
+   const options: IFindOneAndDeleteOption = {
+      maxTimeMS: params.maxTimeMS,
+      projection: {}
+   }
+   if (params.fields) {
+      params.fields.forEach((f) => {
+         const [fieldKey, enabled] = decodeFieldDash(f)
+         options.projection[fieldKey] = enabled
+      })
+   }
+
    if (params.sort) {
       const [sortKey, direction] = decodeSortDash(params.sort)
       options.sort = {

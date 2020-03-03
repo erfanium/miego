@@ -1,12 +1,18 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
-import { decodeSortDash } from '../utils'
+import { decodeSortDash, decodeFieldDash } from '../utils'
 import { FindOneAndUpdateOption } from 'mongodb'
 import { merge } from 'ramda'
 
+interface IFindOneAndUpdateOption extends FindOneAndUpdateOption {
+   projection?: {
+      [k: string]: any
+   }
+}
+
 export type FindOneAndUpdateParams<M> = {
-   query: FindQuery<M>
-   update: UpdateQuery<M>
+   query?: FindQuery<M>
+   update?: UpdateQuery<M>
    sort?: string
    writeConcern?: WriteConcernOptions
    new?: boolean
@@ -14,14 +20,15 @@ export type FindOneAndUpdateParams<M> = {
    upsert?: boolean
    maxTimeMS?: number
    bypassValidation?: boolean
+   fields?: string[]
 } & OptionalPopulate
 
 export type FindOneAndUpdateResult<M> = Promise<DocumentResult<M> | undefined>
 
-export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M>, collection: Collection<M>): FindOneAndUpdateResult<M> {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M> = {}, collection: Collection<M>): FindOneAndUpdateResult<M> {
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
 
-   const options: FindOneAndUpdateOption = {
+   const options: IFindOneAndUpdateOption = {
       w: writeConcern.w,
       j: writeConcern.j,
       wtimeout: writeConcern.wtimeout,
@@ -36,6 +43,12 @@ export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M>, c
       options.sort = {
          [sortKey]: direction
       }
+   }
+   if (params.fields) {
+      params.fields.forEach((f) => {
+         const [fieldKey, enabled] = decodeFieldDash(f)
+         options.projection[fieldKey] = enabled
+      })
    }
    return collection
       .useNative()

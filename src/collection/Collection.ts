@@ -11,6 +11,8 @@ import deleteMany, { DeleteManyMethodParams, DeleteManyMethodResult } from './me
 import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne'
 import updateMany, { UpdateManyMethodParams, UpdateManyMethodResult } from './methods/updateMany'
 import count, { CountMethodParams, CountMethodResult } from './methods/count'
+import list, { ListParams, ListResult } from './methods/list'
+
 import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete'
 import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate'
 import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/fIndManyAndReturnObject'
@@ -117,6 +119,7 @@ export class Collection<M> {
 
       return result
    }
+
    aggregate(p?: object[], options?: mongodb.CollectionAggregationOptions) {
       return this.useNative().aggregate(p, options)
    }
@@ -159,5 +162,8 @@ export class Collection<M> {
    }
    findManyAndReturnObject(argA: FindManyAndReturnObjectParams<M>): FindManyAndReturnObjectResult<M> {
       return findManyAndReturnObject<M>(argA, this)
+   }
+   list(argA: ListParams<M>): ListResult<M> {
+      return list<M>(argA, this)
    }
 }

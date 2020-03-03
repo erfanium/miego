@@ -28,9 +28,9 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
       }
    }
 
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
 
-   if (params.skipWriteError === undefined) params.skipWriteError = true
+   if (params.skipWriteError === undefined) params.skipWriteError = false
 
    const result: InsertWriteOpResult<M> = await collection
       .useNative()
@@ -47,7 +47,7 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
             if (params.skipWriteError)
                return {
                   insertedCount: e.result.result.nInserted,
-                  ops: [], // todo: fix this
+                  ops: [], // todo: how can we fetch it?
                   insertedIds: e.result.result.insertedIds,
                   result: { ok: e.result.result.ok, n: e.result.result.nInserted, errors: e.result.result.writeErrors }
                }
@@ -55,14 +55,10 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
          }
       )
 
-   // result.ops?.map((doc: DocumentResult<M>) => {  // todo Fix
-   //    doc._createdAt = getDocumentCreatedAt(doc)
-   // })
-
    return {
       insertedCount: result.insertedCount,
       ok: result.result.ok === 1,
-      docs: result.ops,
+      docs: result.ops.map(collection.transformDocument),
       errors: result.result.errors
    }
 }

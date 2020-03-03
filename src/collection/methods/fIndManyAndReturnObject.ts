@@ -2,8 +2,9 @@ import { Collection, ValidModel } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, OptionalSort, OptionalPagination } from '../types&Interfaces'
 
 export type FindManyAndReturnObjectParams<M> = {
-   query: FindQuery<M>
+   query?: FindQuery<M>
    key?: keyof DocumentResult<M>
+   fields?: string[]
 } & OptionalPopulate &
    OptionalSort<M> &
    OptionalPagination
@@ -13,7 +14,7 @@ type ObjectReturnType<M> = { [key: string]: DocumentResult<M> }
 export type FindManyAndReturnObjectResult<M> = Promise<ObjectReturnType<M>>
 
 export default async function findManyAndReturnObject<M extends ValidModel>(
-   params: FindManyAndReturnObjectParams<M>,
+   params: FindManyAndReturnObjectParams<M> = {},
    collection: Collection<M>
 ): FindManyAndReturnObjectResult<M> {
    const docs = await collection.findMany({
@@ -21,7 +22,8 @@ export default async function findManyAndReturnObject<M extends ValidModel>(
       sort: params.sort,
       page: params.page,
       pageSize: params.pageSize,
-      populate: params.populate
+      populate: params.populate,
+      fields: params.fields
    })
    const key: keyof DocumentResult<M> = params.key || '_id'
    const o: ObjectReturnType<M> = {}

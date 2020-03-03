@@ -3,8 +3,8 @@ import { FindQuery, UpdateQuery, UpdateResult, AnyObject, WriteConcernOptions } 
 import { merge } from 'ramda'
 
 export type UpdateOneMethodParams<M> = {
-   query: FindQuery<M>
-   update: UpdateQuery<M>
+   query?: FindQuery<M>
+   update?: UpdateQuery<M>
    upsert?: boolean
    arrayFilters?: Array<AnyObject>
    writeConcern?: WriteConcernOptions
@@ -12,8 +12,8 @@ export type UpdateOneMethodParams<M> = {
 
 export type UpdateOneMethodResult = Promise<UpdateResult>
 
-export default async function updateOne<M>(params: UpdateOneMethodParams<M>, collection: Collection<M>): UpdateOneMethodResult {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+export default async function updateOne<M>(params: UpdateOneMethodParams<M> = {}, collection: Collection<M>): UpdateOneMethodResult {
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
 
    const result = await collection.useNative().updateOne(params.query, params.update, {
       upsert: params.upsert || false,

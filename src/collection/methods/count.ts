@@ -3,7 +3,7 @@ import { FindQuery } from '../types&Interfaces'
 
 export type CountMethodParams<M> = {
    query?: FindQuery<M>
-   estimation?: boolean
+   estimated?: boolean
    limit?: number
    skip?: number
    maxTimeMS?: number
@@ -12,14 +12,14 @@ export type CountMethodParams<M> = {
 export type CountMethodResult = Promise<number>
 
 export default async function count<M>(params: CountMethodParams<M>, collection: Collection<M>): CountMethodResult {
-   if (params.estimation === undefined) params.estimation = false
+   if (params.estimated === undefined) params.estimated = false
    const options = {
       limit: params.limit,
       skip: params.skip,
       maxTimeMS: params.maxTimeMS
    }
 
-   if (!params.estimation) {
+   if (!params.estimated) {
       return collection.useNative().countDocuments(params.query, options)
    }
    return collection.useNative().estimatedDocumentCount(params.query, options)

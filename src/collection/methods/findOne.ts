@@ -1,13 +1,6 @@
-import { FindQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
+import { FindQuery, DocumentResult, OptionalPopulate, IFindOneOptions } from '../types&Interfaces'
 import { Collection } from 'collection/Collection'
-import { FindOneOptions } from 'mongodb'
 import { decodeSortDash, decodeFieldDash } from 'collection/utils'
-
-interface IFindOneOptions extends FindOneOptions {
-   projection?: {
-      [key: string]: string | number
-   }
-}
 
 export type FindOneMethodParams<M> = {
    query?: FindQuery<M>
@@ -20,9 +13,8 @@ export type FindOneMethodResult<M> = Promise<DocumentResult<M> | undefined>
 
 export default function findOne<M>(params: FindOneMethodParams<M> = {}, collection: Collection<M>): FindOneMethodResult<M> {
    const options: IFindOneOptions = {
-      projection: {
-         skip: params.skip
-      }
+      skip: params.skip,
+      projection: {}
    }
 
    if (params.sort) {

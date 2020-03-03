@@ -1,5 +1,5 @@
 // type Optional<T> = { [P in keyof T]? : T[P] }
-import mongodb, { WriteError, ObjectID } from 'mongodb'
+import mongodb, { WriteError, ObjectID, FindOneOptions } from 'mongodb'
 
 export interface AnyObject {
    [key: string]: any
@@ -84,4 +84,10 @@ export interface WriteConcernOptions {
    w?: number | 'majority' | string
    j?: boolean
    wtimeout?: number
+}
+
+export interface IFindOneOptions extends FindOneOptions {
+   projection?: {
+      [key: string]: string | number
+   }
 }

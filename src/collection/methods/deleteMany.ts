@@ -10,7 +10,7 @@ export type DeleteManyMethodParams<M> = {
 export type DeleteManyMethodResult = Promise<DeleteResult>
 
 export default async function deleteMany<M>(params: DeleteManyMethodParams<M>, collection: Collection<M>): DeleteManyMethodResult {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
    if (!params.query) params.query = {}
 
    const result = await collection.useNative().deleteMany(params.query, {
