@@ -5,6 +5,12 @@ enum LogLevels {
    error = 4
 }
 
+export function getGlobalLogLevel(): LogLevels {
+   const NODE_ENV: string = process.env.NODE_ENV || 'development'
+   if (NODE_ENV.toLowerCase() === 'production') return LogLevels.warn
+   return LogLevels.debug
+}
+
 export const logLevel: LogLevels = getGlobalLogLevel()
 
 export class Logger {
@@ -14,30 +20,24 @@ export class Logger {
       this.namespace = namespace
       this.logLevel = LogLevels[logLevelString] || logLevel
    }
-   debug(...args: any) {
+   debug(...args: unknown[]): void {
       if (this.logLevel <= LogLevels.debug) console.log(`\x1b[36mMIEGO-DEBUG | ${this.namespace} |\x1b[0m`, ...args)
    }
-   info(...args: any) {
+   info(...args: unknown[]): void {
       if (this.logLevel <= LogLevels.info) console.info(`\x1b[32mMIEGO-INFO | ${this.namespace} |\x1b[0m`, ...args)
    }
-   warn(...args: any) {
+   warn(...args: unknown[]): void {
       if (this.logLevel <= LogLevels.warn) console.warn(`\x1b[33mMIEGO-WARN | ${this.namespace} |\x1b[0m`, ...args)
    }
-   error(...args: any) {
+   error(...args: unknown[]): void {
       console.error(`\x1b[31mMIEGO-ERROR | ${this.namespace} |\x1b[0m`, ...args)
    }
-   startTrace(): number {
-      if (this.logLevel <= LogLevels.debug) return process.hrtime()[1]
-      return undefined
-   }
-   endTrace(start: number, label: string) {
-      if (!start) return
-      this.debug(label, '\x1b[47m\x1b[30m\x1b[2m' + ((process.hrtime()[1] - start) / 1000000).toFixed(2), 'ms\x1b[0m')
-   }
-}
-
-export function getGlobalLogLevel(): LogLevels {
-   const NODE_ENV: string = process.env.NODE_ENV || 'development'
-   if (NODE_ENV.toLowerCase() === 'production') return LogLevels.warn
-   return LogLevels.debug
+   // startTrace(): number {
+   //    if (this.logLevel <= LogLevels.debug) return process.hrtime()[1]
+   //    return undefined
+   // }
+   // endTrace(start: number, label: string) {
+   //    if (!start) return
+   //    this.debug(label, '\x1b[47m\x1b[30m\x1b[2m' + ((process.hrtime()[1] - start) / 1000000).toFixed(2), 'ms\x1b[0m')
+   // }
 }

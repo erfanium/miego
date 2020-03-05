@@ -1,2 +1,2 @@
 export { Collection } from './collection/Collection'
-export { Connection } from './connection/Connection'
+export { MongoClient, ObjectID } from 'mongodb'

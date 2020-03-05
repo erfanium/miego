@@ -1,12 +1,11 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
-import { decodeSortDash, decodeFieldDash } from '../utils'
+import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndUpdateOption } from 'mongodb'
-import { merge } from 'ramda'
 
-interface IFindOneAndUpdateOption extends FindOneAndUpdateOption {
+interface ExtendedFindOneAndUpdateOption extends FindOneAndUpdateOption {
    projection?: {
-      [k: string]: any
+      [k: string]: unknown
    }
 }
 
@@ -26,9 +25,9 @@ export type FindOneAndUpdateParams<M> = {
 export type FindOneAndUpdateResult<M> = Promise<DocumentResult<M> | undefined>
 
 export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M> = {}, collection: Collection<M>): FindOneAndUpdateResult<M> {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
+   const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
-   const options: IFindOneAndUpdateOption = {
+   const options: ExtendedFindOneAndUpdateOption = {
       w: writeConcern.w,
       j: writeConcern.j,
       wtimeout: writeConcern.wtimeout,

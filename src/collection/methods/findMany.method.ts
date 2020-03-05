@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentResult, OptionalPopulate, CurserOptions, IFindOneOptions } from '../types&Interfaces'
+import { FindQuery, DocumentResult, OptionalPopulate, CurserOptions, ExtendedFindOneOptions } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnPageSize } from '../utils'
 
 export type FindManyMethodParams<M> = {
@@ -11,7 +11,7 @@ export type FindManyMethodParams<M> = {
 export type FindManyMethodResult<M> = Promise<Array<DocumentResult<M> | undefined>>
 
 export default function findMany<M>(params: FindManyMethodParams<M> = {}, collection: Collection<M>): FindManyMethodResult<M> {
-   const options: IFindOneOptions = {
+   const options: ExtendedFindOneOptions = {
       projection: {}
    }
 
@@ -25,7 +25,7 @@ export default function findMany<M>(params: FindManyMethodParams<M> = {}, collec
    const curser = collection.useNative().find(params.query, options)
 
    if (params.page) {
-      const pageSize = returnPageSize(params.pageSize, collection)
+      const pageSize = returnPageSize(collection, params.pageSize)
       curser.limit(pageSize)
       curser.skip((params.page - 1) * pageSize)
    }
@@ -36,7 +36,6 @@ export default function findMany<M>(params: FindManyMethodParams<M> = {}, collec
    }
 
    curser.map((doc) => {
-      if (params.map) return params.map(doc) // this is not Array.map
       return collection.transformDocument(doc)
    })
 

@@ -1,26 +1,26 @@
-import mongodb from 'mongodb'
-import { Connection } from '../connection/Connection'
+import mongodb, { IndexOptions } from 'mongodb'
 import { merge } from 'ramda'
-import { WriteConcernOptions, DocumentResult, DocumentAfterTransform, AnyObject } from './types&Interfaces'
-import findOne, { FindOneMethodParams, FindOneMethodResult } from './methods/findOne'
-import findMany, { FindManyMethodParams, FindManyMethodResult } from './methods/findMany'
-import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './methods/insertOne'
-import insertMany, { InsertManyMethodParams, InsertManyMethodResult } from './methods/insertMany'
-import deleteOne, { DeleteOneMethodParams, DeleteOneMethodResult } from './methods/deleteOne'
-import deleteMany, { DeleteManyMethodParams, DeleteManyMethodResult } from './methods/deleteMany'
-import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne'
-import updateMany, { UpdateManyMethodParams, UpdateManyMethodResult } from './methods/updateMany'
-import count, { CountMethodParams, CountMethodResult } from './methods/count'
-import list, { ListParams, ListResult } from './methods/list'
-
-import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete'
-import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate'
-import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/fIndManyAndReturnObject'
-import { Populator, KeySetting } from './Populator'
 import { Logger } from '../Logger'
+import count, { CountMethodParams, CountMethodResult } from './methods/count.method'
+import deleteMany, { DeleteManyMethodParams, DeleteManyMethodResult } from './methods/deleteMany.method'
+import deleteOne, { DeleteOneMethodParams, DeleteOneMethodResult } from './methods/deleteOne.method'
+import findMany, { FindManyMethodParams, FindManyMethodResult } from './methods/findMany.method'
+import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/findManyAndReturnObject.method'
+import findOne, { FindOneMethodParams, FindOneMethodResult } from './methods/findOne.method'
+import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete.method'
+import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate.method'
+import insertMany, { InsertManyMethodParams, InsertManyMethodResult } from './methods/insertMany.method'
+import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './methods/insertOne.method'
+import list, { ListParams, ListResult } from './methods/list.method'
+import updateMany, { UpdateManyMethodParams, UpdateManyMethodResult } from './methods/updateMany.method'
+import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne.method'
+import { KeySetting, Populator } from './Populator'
+import { AnyObject, DocumentAfterTransform, DocumentResult, WriteConcernOptions } from './types&Interfaces'
+
+type Indexes = [string | unknown, IndexOptions?][]
 
 interface ConstructorSettings {
-   connection?: Connection
+   client?: mongodb.MongoClient
    pagination?: PaginationSettings
    writeConcern?: WriteConcernOptions
    transform?: {
@@ -29,7 +29,8 @@ interface ConstructorSettings {
    populates?: {
       [key: string]: KeySetting | Collection<AnyObject>
    }
-   indexes?: {}
+   indexes?: Indexes
+   dropAdditionalIndexes?: boolean
 }
 
 interface Settings {
@@ -38,8 +39,8 @@ interface Settings {
    transform: {
       createdAt?: boolean
    }
-
-   indexes: {}
+   indexes: Indexes
+   dropAdditionalIndexes: boolean
 }
 
 interface PaginationSettings {
@@ -54,63 +55,54 @@ const defaultSettings: Settings = {
    transform: {
       createdAt: true
    },
-   indexes: {}
+   indexes: [],
+   dropAdditionalIndexes: false
 }
 export interface ValidModel {
-   [key: string]: any
+   [key: string]: unknown
 }
 export class Collection<M> {
    public readonly name: string
    base: mongodb.Collection
    client: mongodb.MongoClient
-   isConnecting: boolean = false
-   connected: boolean = false
+   isConnecting = false
+   connected = false
    settings: Settings
    logger: Logger
+   indexesName: string[]
    readonly populator: Populator<M>
 
    constructor(name: string, settings?: ConstructorSettings) {
-      this.settings = merge(settings, defaultSettings)
+      this.settings = merge(defaultSettings, settings)
       this.name = name
       this.populator = new Populator(this, settings.populates)
-      this.logger = new Logger(`COLLECTION ${this.name}`)
-      if (settings.connection) this.setConnection(settings.connection)
+      this.logger = new Logger(this.name + ' collection')
+      if (settings.client) this.setClient(settings.client)
    }
 
-   setConnection(client: mongodb.MongoClient): mongodb.Collection {
+   setClient(client: mongodb.MongoClient): mongodb.Collection {
       if (!client.isConnected()) {
          this.client = client
+         client.once('open', () => this.setClient(client))
          return undefined
       }
       this.base = client.db().collection(this.name)
 
       this.isConnecting = false
       this.connected = true
+      this.onConnect()
       return this.base
    }
    useNative(): mongodb.Collection {
       if (this.isConnecting)
          throw new Error(
-            "Collection connection not yet connected, Use query's ONLY when connection is connected, For example use await for connect method"
+            "Collection client not yet connected, Use query's ONLY when client is connected, For example use await for connect method"
          )
       if (this.base) return this.base
+      // if (this.client) return this.setClient(this.client)
 
-      if (this.client) {
-         return this.setConnection(this.client)
-      }
-
-      if (!this.connected) throw new Error('Collection does not have connection yet')
+      if (!this.connected) throw new Error('Collection does not have client yet')
       throw new Error('No base found')
-   }
-   async connect(url?: string, dbName?: string): Promise<mongodb.MongoClient> {
-      this.logger.info("it's better to create a separate connection and set it to Collection")
-      if (this.connected || this.isConnecting) return undefined
-      const connection: mongodb.MongoClient = Connection.getConnection(url)
-      this.isConnecting = true
-
-      const client = await connection.connect()
-      this.setConnection(connection)
-      return client
    }
    transformDocument(d: DocumentResult<M>): DocumentAfterTransform<M> {
       if (!d) return undefined
@@ -119,14 +111,32 @@ export class Collection<M> {
 
       return result
    }
-
-   aggregate(p?: object[], options?: mongodb.CollectionAggregationOptions) {
-      return this.useNative().aggregate(p, options)
+   private async onConnect(): Promise<void> {
+      if (this.settings.indexes.length > 0) {
+         const indexesNamesP = this.settings.indexes.map(([fields, option]) => this.useNative().createIndex(fields, option))
+         this.indexesName = await Promise.all(indexesNamesP)
+         if (this.settings.dropAdditionalIndexes) this.dropAdditionalIndexes()
+      }
    }
-   bulkWrite(operations: object[], options?: mongodb.CollectionBulkWriteOptions) {
-      return this.useNative().bulkWrite(operations, options)
-   }
+   async dropAdditionalIndexes(): Promise<void> {
+      const indexes: { name: string }[] = await this.useNative().indexes()
+      const additionalIndexesName: string[] = []
+      const dropP: Promise<[]>[] = []
 
+      indexes.map(({ name }) => {
+         if (name != '_id_' && !this.indexesName.includes(name)) {
+            additionalIndexesName.push(name)
+            dropP.push(this.useNative().dropIndex(name))
+         }
+      })
+
+      if (dropP.length > 0) {
+         await Promise.all(dropP)
+         this.logger.info(`Additional indexes: [${additionalIndexesName}] dropped!`)
+         return
+      }
+      this.logger.debug('No additional index found')
+   }
    findOne(argA: FindOneMethodParams<M>): FindOneMethodResult<M> {
       return findOne(argA, this)
    }

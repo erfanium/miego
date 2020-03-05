@@ -1,6 +1,6 @@
 import { Collection } from '../Collection'
 import { DocumentResult, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
-import { merge } from 'ramda'
+import { returnWriteConcern } from '../utils'
 
 export interface InsertOneMethodParams<M> {
    entity: ModelWithOptionalId<M>
@@ -10,7 +10,7 @@ export interface InsertOneMethodParams<M> {
 export type InsertOneMethodResult<M> = Promise<DocumentResult<M>>
 
 export default async function insertOne<M>(params: InsertOneMethodParams<M>, collection: Collection<M>): InsertOneMethodResult<M> {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
+   const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
    const doc = await collection
       .useNative()

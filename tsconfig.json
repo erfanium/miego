@@ -2,15 +2,15 @@
    "compileOnSave": false,
    "compilerOptions": {
       "experimentalDecorators": true,
-      "allowJs": true,
+      "allowJs": false,
       "module": "commonjs",
       "esModuleInterop": true,
-      "target": "ES2017",
+      "target": "ES2018",
       "moduleResolution": "node",
       "baseUrl": "./src",
       "outDir": "./dist",
       "pretty": true,
-      "lib": ["dom", "es2015", "es2016", "es2017"],
+      "lib": ["dom", "es2015", "es2016", "es2017", "es2018"],
       "paths": {
          "*": ["*", "node_modules/*"]
       },

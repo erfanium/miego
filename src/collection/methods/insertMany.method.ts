@@ -1,7 +1,7 @@
-import { Collection } from '../Collection'
-import { ModelWithOptionalId, DocumentResult, InsertWriteOpResult, WriteConcernOptions } from '../types&Interfaces'
 import { WriteError } from 'mongodb'
-import { merge } from 'ramda'
+import { Collection } from '../Collection'
+import { DocumentResult, InsertWriteOpResult, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
+import { returnWriteConcern } from '../utils'
 
 type InsertResult<DocType> = {
    insertedCount: number
@@ -28,7 +28,7 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
       }
    }
 
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
+   const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
    if (params.skipWriteError === undefined) params.skipWriteError = false
 

@@ -16,20 +16,20 @@ interface PopulateDependency<M> {
 }
 
 interface AnyObject {
-   [key: string]: any
+   [key: string]: unknown
 }
 
 type SplittedKey = string[]
 
 export interface KeySetting {
-   target: Collection<{ [key: string]: any }>
+   target: Collection<{ [key: string]: unknown }>
    params: {
       populate?: string[]
       fields?: string[]
    }
 }
 
-function pushIfNotExist(toPush: any | any[], array: any[]) {
+function pushIfNotExist(toPush: unknown | unknown[], array: unknown[]): void {
    if (!toPush) return
    if (Array.isArray(toPush)) {
       toPush.forEach((v) => {
@@ -40,7 +40,7 @@ function pushIfNotExist(toPush: any | any[], array: any[]) {
    if (!array.includes(toPush)) array.push(toPush)
 }
 
-export function getIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[]) {
+export function getIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[]): void {
    if (!doc) return undefined
    const value = doc[splittedKey[0]]
    if (!value) return undefined
@@ -75,7 +75,7 @@ function replaceIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: Object
 
    if (splittedKey[1]) {
       if (Array.isArray(value)) value.forEach((d) => replaceIdsFromDoc(d, splittedKey.slice(1), ids, result))
-      if (isObject(value)) replaceIdsFromDoc(value, splittedKey.slice(1), ids, result)
+      if (isObject(value)) replaceIdsFromDoc(value as AnyObject, splittedKey.slice(1), ids, result)
    }
    if (Array.isArray(value)) {
       value.forEach((v) => {
@@ -115,7 +115,7 @@ export class Populator<M> {
       })
    }
 
-   async populate(docs: DocumentResult<M>[], populateKeys: string[]) {
+   async populate(docs: DocumentResult<M>[], populateKeys: string[]): Promise<DocumentResult<M>[]> {
       const populateDependencies: PopulateDependency<M>[] = []
       const splittedKeys: SplittedKey[] = []
 
@@ -147,7 +147,7 @@ export class Populator<M> {
 
       // fetch dependencies
 
-      const promises: Promise<any>[] = []
+      const promises: Promise<unknown>[] = []
       populateDependencies.forEach((populateDependency) => {
          promises.push(
             populateDependency.target

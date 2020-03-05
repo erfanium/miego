@@ -1,11 +1,11 @@
-import { Collection, Connection } from '../../src/index'
+import { Collection, MongoClient } from '../../src/index'
 import { ObjectID } from 'mongodb'
 
-let connection: Connection
+let client: MongoClient
 beforeAll(async () => {
-   if (!connection) {
-      connection = new Connection()
-      await connection.connect()
+   if (!client) {
+      client = new MongoClient('mongodb://localhost:27017')
+      await client.connect()
    }
 })
 
@@ -21,10 +21,10 @@ describe('populates', () => {
    let posts: Collection<Post>
 
    beforeAll(async () => {
-      if (!users) users = new Collection<User>('users', { connection })
+      if (!users) users = new Collection<User>('users', { client })
       if (!posts) {
          posts = new Collection('posts', {
-            connection,
+            client,
             populates: {
                creator: users
             }

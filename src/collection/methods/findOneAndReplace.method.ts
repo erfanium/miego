@@ -1,12 +1,11 @@
 import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, ModelWithOptionalId } from '../types&Interfaces'
-import { decodeSortDash, decodeFieldDash } from '../utils'
+import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndReplaceOption } from 'mongodb'
-import { merge } from 'ramda'
 
-interface IFindOneAndReplaceOption extends FindOneAndReplaceOption {
+interface ExtendedFindOneAndReplaceOption extends FindOneAndReplaceOption {
    projection?: {
-      [k: string]: any
+      [k: string]: unknown
    }
 }
 
@@ -28,9 +27,9 @@ export default function findOneAndReplace<M>(params: FindOneAndReplaceParams<M>,
       collection.logger.error('Replace field is required!')
       throw new Error('Replace field is required!')
    }
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern)
+   const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
-   const options: IFindOneAndReplaceOption = {
+   const options: ExtendedFindOneAndReplaceOption = {
       w: writeConcern.w,
       j: writeConcern.j,
       wtimeout: writeConcern.wtimeout,

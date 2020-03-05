@@ -1,4 +1,4 @@
-import { Collection, ValidModel } from '../Collection'
+import { Collection } from '../Collection'
 import { FindQuery, DocumentResult, OptionalPopulate, OptionalSort, OptionalPagination } from '../types&Interfaces'
 
 export type FindManyAndReturnObjectParams<M> = {
@@ -13,7 +13,7 @@ type ObjectReturnType<M> = { [key: string]: DocumentResult<M> }
 
 export type FindManyAndReturnObjectResult<M> = Promise<ObjectReturnType<M>>
 
-export default async function findManyAndReturnObject<M extends ValidModel>(
+export default async function findManyAndReturnObject<M>(
    params: FindManyAndReturnObjectParams<M> = {},
    collection: Collection<M>
 ): FindManyAndReturnObjectResult<M> {
@@ -29,7 +29,7 @@ export default async function findManyAndReturnObject<M extends ValidModel>(
    const o: ObjectReturnType<M> = {}
 
    docs.forEach(function(doc) {
-      if (o[doc[key]]) return
+      if (o[doc[key].toString()]) return
       o[doc[key].toString()] = collection.transformDocument(doc)
    })
 

@@ -1,6 +1,6 @@
 import { Collection } from '../Collection'
 import { FindQuery, UpdateResult, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
-import { merge } from 'ramda'
+import { returnWriteConcern } from '../utils'
 
 export type UpdateManyMethodParams<M> = {
    query?: FindQuery<M>
@@ -13,7 +13,7 @@ export type UpdateManyMethodParams<M> = {
 export type UpdateManyMethodResult = Promise<UpdateResult>
 
 export default async function updateMany<M>(params: UpdateManyMethodParams<M> = {}, collection: Collection<M>): UpdateManyMethodResult {
-   const writeConcern = merge(collection.settings.writeConcern, params.writeConcern) || {}
+   const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
    const result = await collection.useNative().updateMany(params.query, params.update, {
       upsert: params.upsert || false,

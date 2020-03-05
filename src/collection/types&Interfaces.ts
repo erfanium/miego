@@ -2,6 +2,7 @@
 import mongodb, { WriteError, ObjectID, FindOneOptions } from 'mongodb'
 
 export interface AnyObject {
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
    [key: string]: any
 }
 
@@ -16,14 +17,14 @@ export type ModelWithOptionalId<M> = {
 export type DocumentResult<M> = {
    _id?: ObjectID
 } & {
-   [key in keyof M]?: M[key] extends ObjectID ? any : M[key]
+   [key in keyof M]?: M[key] extends ObjectID ? unknown : M[key]
 }
 
 export type DocumentAfterTransform<M> = {
    _id?: ObjectID
    _createdAt?: Date
 } & {
-   [key in keyof M]?: M[key] extends ObjectID ? any : M[key]
+   [key in keyof M]?: M[key] extends ObjectID ? unknown : M[key]
 }
 
 export type FindQuery<M> =
@@ -32,7 +33,7 @@ export type FindQuery<M> =
      } &
         ModelWithOptionalId<M>)
    | {
-        [key: string]: any
+        [key: string]: unknown
      }
 
 export type UpdateQuery<M> = mongodb.UpdateQuery<ModelWithId<M>>
@@ -54,11 +55,7 @@ export type OptionalSort<M> = {
    sort?: string
 }
 
-export interface OptionalMap {
-   map?: (d: any) => any
-}
-
-export type CurserOptions<M> = OptionalPagination & OptionalSort<M> & OptionalMap
+export type CurserOptions<M> = OptionalPagination & OptionalSort<M>
 
 export interface DeleteResult {
    deletedCount: number
@@ -86,7 +83,7 @@ export interface WriteConcernOptions {
    wtimeout?: number
 }
 
-export interface IFindOneOptions extends FindOneOptions {
+export interface ExtendedFindOneOptions extends FindOneOptions {
    projection?: {
       [key: string]: string | number
    }

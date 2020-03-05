@@ -12,14 +12,14 @@ export type FindOneAndDeleteParams<M> = {
 
 export type FindOneAndDeleteResult<M> = Promise<DocumentResult<M> | undefined>
 
-interface IFindOneAndDeleteOption extends FindOneAndDeleteOption {
+interface ExtendedFindOneAndDeleteOption extends FindOneAndDeleteOption {
    projection?: {
-      [k: string]: any
+      [k: string]: unknown
    }
 }
 
 export default function findOneAndDelete<M>(params: FindOneAndDeleteParams<M> = {}, collection: Collection<M>): FindOneAndDeleteResult<M> {
-   const options: IFindOneAndDeleteOption = {
+   const options: ExtendedFindOneAndDeleteOption = {
       maxTimeMS: params.maxTimeMS,
       projection: {}
    }

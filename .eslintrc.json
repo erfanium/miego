@@ -1,0 +1,44 @@
+{
+   "root": true,
+   "env": {
+      "node": true,
+      "jest": true
+   },
+   "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+   },
+   "parser": "@typescript-eslint/parser",
+   "parserOptions": {
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+   },
+   "plugins": ["@typescript-eslint"],
+
+   "extends": ["eslint:recommended", "plugin:@typescript-eslint/eslint-recommended", "plugin:@typescript-eslint/recommended"],
+   "rules": {
+      "indent": ["error", 3],
+      "linebreak-style": ["error", "unix"],
+      "quotes": [
+         "error",
+         "single",
+         {
+            "avoidEscape": true
+         }
+      ],
+      "semi": ["error", "never"],
+      "@typescript-eslint/member-delimiter-style": [
+         "error",
+         {
+            "multiline": {
+               "delimiter": "none",
+               "requireLast": false
+            },
+            "singleline": {
+               "delimiter": "semi",
+               "requireLast": false
+            }
+         }
+      ]
+   }
+}
