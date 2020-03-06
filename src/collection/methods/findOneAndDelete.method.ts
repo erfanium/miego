@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentResult, OptionalPopulate } from '../types&Interfaces'
+import { FindQuery, DocumentAfterTransform, OptionalPopulate } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash } from '../utils'
 import { FindOneAndDeleteOption } from 'mongodb'
 
@@ -10,7 +10,7 @@ export type FindOneAndDeleteParams<M> = {
    fields?: string[]
 } & OptionalPopulate
 
-export type FindOneAndDeleteResult<M> = Promise<DocumentResult<M> | undefined>
+export type FindOneAndDeleteResult<M> = Promise<DocumentAfterTransform<M> | undefined>
 
 interface ExtendedFindOneAndDeleteOption extends FindOneAndDeleteOption {
    projection?: {

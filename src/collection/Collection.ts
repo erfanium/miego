@@ -19,7 +19,7 @@ import { AnyObject, DocumentAfterTransform, DocumentResult, WriteConcernOptions 
 
 type Indexes = [string | unknown, IndexOptions?][]
 
-interface ConstructorSettings {
+export interface ConstructorSettings {
    client?: mongodb.MongoClient
    pagination?: PaginationSettings
    writeConcern?: WriteConcernOptions
@@ -31,6 +31,8 @@ interface ConstructorSettings {
    }
    indexes?: Indexes
    dropAdditionalIndexes?: boolean
+   dbName?: string
+   initializeCollection?: boolean
 }
 
 interface Settings {
@@ -41,6 +43,7 @@ interface Settings {
    }
    indexes: Indexes
    dropAdditionalIndexes: boolean
+   initializeCollection: boolean
 }
 
 interface PaginationSettings {
@@ -56,53 +59,54 @@ const defaultSettings: Settings = {
       createdAt: true
    },
    indexes: [],
-   dropAdditionalIndexes: false
+   dropAdditionalIndexes: false,
+   initializeCollection: true
 }
 export interface ValidModel {
    [key: string]: unknown
 }
+
 export class Collection<M> {
    public readonly name: string
    base: mongodb.Collection
    client: mongodb.MongoClient
-   isConnecting = false
    connected = false
+   dbName?: string
    settings: Settings
    logger: Logger
    indexesName: string[]
    readonly populator: Populator<M>
 
-   constructor(name: string, settings?: ConstructorSettings) {
+   constructor(name: string, settings: ConstructorSettings = {}) {
       this.settings = merge(defaultSettings, settings)
       this.name = name
-      this.populator = new Populator(this, settings.populates)
+      this.dbName = settings.dbName
+
+      //populator
+      this.populator = new Populator(settings.populates)
+
       this.logger = new Logger(this.name + ' collection')
       if (settings.client) this.setClient(settings.client)
    }
 
    setClient(client: mongodb.MongoClient): mongodb.Collection {
+      this.client = client
+
       if (!client.isConnected()) {
-         this.client = client
          client.once('open', () => this.setClient(client))
          return undefined
       }
-      this.base = client.db().collection(this.name)
-
-      this.isConnecting = false
+      this.base = client.db(this.dbName).collection(this.name)
       this.connected = true
-      this.onConnect()
+      this.initializeCollectionInDatabase()
       return this.base
    }
    useNative(): mongodb.Collection {
-      if (this.isConnecting)
-         throw new Error(
-            "Collection client not yet connected, Use query's ONLY when client is connected, For example use await for connect method"
-         )
       if (this.base) return this.base
       // if (this.client) return this.setClient(this.client)
 
       if (!this.connected) throw new Error('Collection does not have client yet')
-      throw new Error('No base found')
+      throw new Error('Something went wrong - No base found')
    }
    transformDocument(d: DocumentResult<M>): DocumentAfterTransform<M> {
       if (!d) return undefined
@@ -111,7 +115,8 @@ export class Collection<M> {
 
       return result
    }
-   private async onConnect(): Promise<void> {
+   async initializeCollectionInDatabase(): Promise<void> {
+      if (!this.settings.initializeCollection) return
       if (this.settings.indexes.length > 0) {
          const indexesNamesP = this.settings.indexes.map(([fields, option]) => this.useNative().createIndex(fields, option))
          this.indexesName = await Promise.all(indexesNamesP)

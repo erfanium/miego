@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentResult, OptionalPopulate, CurserOptions, ExtendedFindOneOptions } from '../types&Interfaces'
+import { FindQuery, DocumentAfterTransform, OptionalPopulate, CurserOptions, ExtendedFindOneOptions } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnPageSize } from '../utils'
 
 export type FindManyMethodParams<M> = {
@@ -8,7 +8,7 @@ export type FindManyMethodParams<M> = {
 } & OptionalPopulate &
    CurserOptions<M>
 
-export type FindManyMethodResult<M> = Promise<Array<DocumentResult<M> | undefined>>
+export type FindManyMethodResult<M> = Promise<Array<DocumentAfterTransform<M> | undefined>>
 
 export default function findMany<M>(params: FindManyMethodParams<M> = {}, collection: Collection<M>): FindManyMethodResult<M> {
    const options: ExtendedFindOneOptions = {

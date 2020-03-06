@@ -1,10 +1,11 @@
 import { Collection, MongoClient } from '../../src/index'
 import { ObjectID } from 'mongodb'
+import config from '../config'
 
 let client: MongoClient
 beforeAll(async () => {
    if (!client) {
-      client = new MongoClient('mongodb://localhost:27017')
+      client = new MongoClient(config.MongoUrl)
       await client.connect()
    }
 })

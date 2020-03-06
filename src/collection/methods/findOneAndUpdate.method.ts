@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
+import { FindQuery, DocumentAfterTransform, OptionalPopulate, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndUpdateOption } from 'mongodb'
 
@@ -22,7 +22,7 @@ export type FindOneAndUpdateParams<M> = {
    fields?: string[]
 } & OptionalPopulate
 
-export type FindOneAndUpdateResult<M> = Promise<DocumentResult<M> | undefined>
+export type FindOneAndUpdateResult<M> = Promise<DocumentAfterTransform<M> | undefined>
 
 export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M> = {}, collection: Collection<M>): FindOneAndUpdateResult<M> {
    const writeConcern = returnWriteConcern(collection, params.writeConcern)
@@ -34,7 +34,7 @@ export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M> = 
       upsert: params.upsert || false,
       arrayFilters: params.arrayFilters,
       maxTimeMS: params.maxTimeMS,
-      returnOriginal: !params.new
+      returnOriginal: params.new === undefined ? false : params.new
    }
    if (params.sort) {
       const [sortKey, direction] = decodeSortDash(params.sort)
@@ -51,7 +51,7 @@ export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M> = 
    }
    return collection
       .useNative()
-      .findOneAndUpdate(params.query, params.update)
+      .findOneAndUpdate(params.query, params.update, options)
       .then((result) => {
          return collection.transformDocument(result.value)
       })

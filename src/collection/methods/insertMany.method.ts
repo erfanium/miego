@@ -1,12 +1,12 @@
 import { WriteError } from 'mongodb'
 import { Collection } from '../Collection'
-import { DocumentResult, InsertWriteOpResult, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
+import { DocumentAfterTransform, InsertWriteOpResult, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
 
 type InsertResult<DocType> = {
    insertedCount: number
    ok: boolean
-   docs: Array<DocumentResult<DocType> | undefined>
+   docs: Array<DocumentAfterTransform<DocType> | undefined>
    errors?: Array<WriteError>
 }
 
@@ -58,7 +58,7 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
    return {
       insertedCount: result.insertedCount,
       ok: result.result.ok === 1,
-      docs: result.ops.map(collection.transformDocument),
+      docs: result.ops.map((doc) => collection.transformDocument(doc)),
       errors: result.result.errors
    }
 }

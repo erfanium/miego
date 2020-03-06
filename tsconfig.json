@@ -5,7 +5,7 @@
       "allowJs": false,
       "module": "commonjs",
       "esModuleInterop": true,
-      "target": "ES2018",
+      "target": "es2018",
       "moduleResolution": "node",
       "baseUrl": "./src",
       "outDir": "./dist",
@@ -17,7 +17,8 @@
       "typeRoots": ["./node_modules/@types", "./typings"],
       "noImplicitAny": true,
       "noImplicitReturns": true,
-      "noUnusedLocals": true
+      "noUnusedLocals": true,
+      "resolveJsonModule": true
    },
    "include": ["./src/**/*", "./typings/**/*", "./test/**/*"],
    "exclude": ["**/*.test.ts", "**/*.spec.ts"]

@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentResult, OptionalPopulate, WriteConcernOptions, ModelWithOptionalId } from '../types&Interfaces'
+import { FindQuery, DocumentAfterTransform, OptionalPopulate, WriteConcernOptions, ModelWithOptionalId } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndReplaceOption } from 'mongodb'
 
@@ -20,7 +20,7 @@ export type FindOneAndReplaceParams<M> = {
    fields: string[]
 } & OptionalPopulate
 
-export type FindOneAndReplaceResult<M> = Promise<DocumentResult<M> | undefined>
+export type FindOneAndReplaceResult<M> = Promise<DocumentAfterTransform<M> | undefined>
 
 export default function findOneAndReplace<M>(params: FindOneAndReplaceParams<M>, collection: Collection<M>): FindOneAndReplaceResult<M> {
    if (!params.replace) {

@@ -4,33 +4,41 @@ enum LogLevels {
    warn = 3,
    error = 4
 }
+export let logLevel: LogLevels
 
-export function getGlobalLogLevel(): LogLevels {
-   const NODE_ENV: string = process.env.NODE_ENV || 'development'
-   if (NODE_ENV.toLowerCase() === 'production') return LogLevels.warn
-   return LogLevels.debug
+interface LoggerBase {
+   debug(...args: unknown[]): void
+   info(...args: unknown[]): void
+   warn(...args: unknown[]): void
+   error(...args: unknown[]): void
 }
-
-export const logLevel: LogLevels = getGlobalLogLevel()
 
 export class Logger {
    logLevel: LogLevels
    namespace: string
+   base: LoggerBase
    constructor(namespace: string, logLevelString?: keyof typeof LogLevels) {
       this.namespace = namespace
-      this.logLevel = LogLevels[logLevelString] || logLevel
+      this.logLevel = LogLevels[logLevelString] || logLevel || Logger.getGlobalLogLevel()
+      this.base = console
    }
+   static getGlobalLogLevel(): LogLevels {
+      const NODE_ENV: string = process.env.NODE_ENV || 'development'
+      if (NODE_ENV.toLowerCase() === 'production') return LogLevels.warn
+      return LogLevels.info
+   }
+
    debug(...args: unknown[]): void {
-      if (this.logLevel <= LogLevels.debug) console.log(`\x1b[36mMIEGO-DEBUG | ${this.namespace} |\x1b[0m`, ...args)
+      if (this.logLevel <= LogLevels.debug) this.base.debug(`\x1b[36mMIEGO-DEBUG | ${this.namespace} |\x1b[0m`, ...args)
    }
    info(...args: unknown[]): void {
-      if (this.logLevel <= LogLevels.info) console.info(`\x1b[32mMIEGO-INFO | ${this.namespace} |\x1b[0m`, ...args)
+      if (this.logLevel <= LogLevels.info) this.base.info(`\x1b[32mMIEGO-INFO | ${this.namespace} |\x1b[0m`, ...args)
    }
    warn(...args: unknown[]): void {
-      if (this.logLevel <= LogLevels.warn) console.warn(`\x1b[33mMIEGO-WARN | ${this.namespace} |\x1b[0m`, ...args)
+      if (this.logLevel <= LogLevels.warn) this.base.warn(`\x1b[33mMIEGO-WARN | ${this.namespace} |\x1b[0m`, ...args)
    }
    error(...args: unknown[]): void {
-      console.error(`\x1b[31mMIEGO-ERROR | ${this.namespace} |\x1b[0m`, ...args)
+      this.base.error(`\x1b[31mMIEGO-ERROR | ${this.namespace} |\x1b[0m`, ...args)
    }
    // startTrace(): number {
    //    if (this.logLevel <= LogLevels.debug) return process.hrtime()[1]

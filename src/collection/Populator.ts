@@ -29,13 +29,14 @@ export interface KeySetting {
    }
 }
 
-function pushIfNotExist(toPush: unknown | unknown[], array: unknown[]): void {
+export function pushIfNotExist(toPush: unknown | unknown[], array: unknown[]): void {
    if (!toPush) return
    if (Array.isArray(toPush)) {
-      toPush.forEach((v) => {
+      toPush.forEach((v): void => {
          if (!v) return
          if (!array.includes(v)) array.push(v)
       })
+      return
    }
    if (!array.includes(toPush)) array.push(toPush)
 }
@@ -64,7 +65,7 @@ function getIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: Object
    return undefined
 }
 
-function replaceIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[], result: AnyObject): void {
+export function replaceIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: ObjectID[], result: AnyObject): void {
    if (!doc) return
    const value = doc[splittedKey[0]]
    if (!value) return
@@ -78,9 +79,9 @@ function replaceIdsFromDoc(doc: AnyObject, splittedKey: SplittedKey, ids: Object
       if (isObject(value)) replaceIdsFromDoc(value as AnyObject, splittedKey.slice(1), ids, result)
    }
    if (Array.isArray(value)) {
-      value.forEach((v) => {
+      value.forEach((v, index) => {
          if (v instanceof ObjectID) {
-            doc[splittedKey[0]] = result[v.toString()]
+            value[index] = result[v.toString()]
             return
          }
          return
@@ -97,10 +98,8 @@ function replaceIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: Ob
 
 export class Populator<M> {
    readonly keysSetting: { [key: string]: KeySetting }
-   readonly collection: Collection<M>
 
-   constructor(collection: Collection<M>, keysSetting: { [key: string]: KeySetting | Collection<AnyObject> } = {}) {
-      this.collection = collection
+   constructor(keysSetting: { [key: string]: KeySetting | Collection<AnyObject> } = {}) {
       this.keysSetting = {}
       Object.keys(keysSetting).forEach((keyName: string) => {
          const setting = keysSetting[keyName]
@@ -158,8 +157,8 @@ export class Populator<M> {
                      }
                   },
                   key: '_id',
-                  populate: populateDependency.params.populate
-                  // fields: params.fields // todo: fix
+                  populate: populateDependency.params.populate,
+                  fields: populateDependency.params.fields
                })
                .then((result) => (populateDependency.result = result))
          )

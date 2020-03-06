@@ -1,7 +1,7 @@
 {
    "name": "miego",
-   "version": "0.0.2",
-   "description": "better way to use mongoDB",
+   "version": "0.0.3",
+   "description": "Better way to use mongoDB",
    "repository": {
       "type": "git",
       "url": "https://github.com/erfanium/miego"
@@ -14,7 +14,7 @@
       "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
       "test": "jest --detectOpenHandles",
       "test:unit": "jest unit --detectOpenHandles",
-      "build": "tsc"
+      "build": "tsc --declaration"
    },
    "keywords": [
       "mongoDB"
