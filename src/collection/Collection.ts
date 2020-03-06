@@ -142,43 +142,43 @@ export class Collection<M> {
       }
       this.logger.debug('No additional index found')
    }
-   findOne(argA: FindOneMethodParams<M>): FindOneMethodResult<M> {
-      return findOne(argA, this)
+   findOne(params: FindOneMethodParams<M>): FindOneMethodResult<M> {
+      return findOne(params, this)
    }
-   findMany(argA: FindManyMethodParams<M>): FindManyMethodResult<M> {
-      return findMany<M>(argA, this)
+   findMany(params: FindManyMethodParams<M>): FindManyMethodResult<M> {
+      return findMany<M>(params, this)
    }
-   insertOne(argA: InsertOneMethodParams<M>): InsertOneMethodResult<M> {
-      return insertOne<M>(argA, this)
+   insertOne(params: InsertOneMethodParams<M>): InsertOneMethodResult<M> {
+      return insertOne<M>(params, this)
    }
-   insertMany(argA: InsertManyMethodParams<M>): InsertManyMethodResult<M> {
-      return insertMany<M>(argA, this)
+   insertMany(params: InsertManyMethodParams<M>): InsertManyMethodResult<M> {
+      return insertMany<M>(params, this)
    }
-   deleteOne(argA: DeleteOneMethodParams<M>): DeleteOneMethodResult {
-      return deleteOne<M>(argA, this)
+   deleteOne(params: DeleteOneMethodParams<M>): DeleteOneMethodResult {
+      return deleteOne<M>(params, this)
    }
-   deleteMany(argA: DeleteManyMethodParams<M> = {}): DeleteManyMethodResult {
-      return deleteMany<M>(argA, this)
+   deleteMany(params: DeleteManyMethodParams<M> = {}): DeleteManyMethodResult {
+      return deleteMany<M>(params, this)
    }
-   updateOne(argA: UpdateOneMethodParams<M>): UpdateOneMethodResult {
-      return updateOne<M>(argA, this)
+   updateOne(params: UpdateOneMethodParams<M>): UpdateOneMethodResult {
+      return updateOne<M>(params, this)
    }
-   updateMany(argA: UpdateManyMethodParams<M>): UpdateManyMethodResult {
-      return updateMany<M>(argA, this)
+   updateMany(params: UpdateManyMethodParams<M>): UpdateManyMethodResult {
+      return updateMany<M>(params, this)
    }
-   count(argA: CountMethodParams<M>): CountMethodResult {
-      return count<M>(argA, this)
+   count(params: CountMethodParams<M>): CountMethodResult {
+      return count<M>(params, this)
    }
-   findOneAndDelete(argA: FindOneAndDeleteParams<M>): FindOneAndDeleteResult<M> {
-      return findOneAndDelete<M>(argA, this)
+   findOneAndDelete(params: FindOneAndDeleteParams<M>): FindOneAndDeleteResult<M> {
+      return findOneAndDelete<M>(params, this)
    }
-   findOneAndUpdate(argA: FindOneAndUpdateParams<M>): FindOneAndUpdateResult<M> {
-      return findOneAndUpdate<M>(argA, this)
+   findOneAndUpdate(params: FindOneAndUpdateParams<M>): FindOneAndUpdateResult<M> {
+      return findOneAndUpdate<M>(params, this)
    }
-   findManyAndReturnObject(argA: FindManyAndReturnObjectParams<M>): FindManyAndReturnObjectResult<M> {
-      return findManyAndReturnObject<M>(argA, this)
+   findManyAndReturnObject(params: FindManyAndReturnObjectParams<M>): FindManyAndReturnObjectResult<M> {
+      return findManyAndReturnObject<M>(params, this)
    }
-   list(argA: ListParams<M>): ListResult<M> {
-      return list<M>(argA, this)
+   list(params: ListParams<M>): ListResult<M> {
+      return list<M>(params, this)
    }
 }

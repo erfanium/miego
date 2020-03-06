@@ -9,8 +9,8 @@
    "bugs": {
       "url": "https://github.com/erfanium/miego/issues"
    },
+   "main": "./src/index",
    "scripts": {
-      "start": "ts-node test.ts",
       "lint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
       "test": "jest --detectOpenHandles",
       "test:unit": "jest unit --detectOpenHandles",
