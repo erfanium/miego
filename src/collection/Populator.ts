@@ -12,7 +12,7 @@ interface PopulateDependency<M> {
       populate?: string[]
       fields?: string[]
    }
-   result?: DocumentResult<AnyObject>
+   result?: AnyObject
 }
 
 interface AnyObject {

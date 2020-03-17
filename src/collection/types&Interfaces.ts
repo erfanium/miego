@@ -15,13 +15,13 @@ export type ModelWithOptionalId<M> = {
 } & M
 
 export type DocumentResult<M> = {
-   _id?: ObjectID
+   _id: ObjectID
 } & {
    [key in keyof M]?: M[key] extends ObjectID ? unknown : M[key]
 }
 
 export type DocumentAfterTransform<M> = {
-   _id?: ObjectID
+   _id: ObjectID
    _createdAt?: Date
 } & {
    [key in keyof M]?: M[key] extends ObjectID ? unknown : M[key]
