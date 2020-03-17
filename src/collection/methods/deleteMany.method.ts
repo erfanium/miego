@@ -1,15 +1,15 @@
 import { Collection } from '../Collection'
-import { FindQuery, DeleteResult, WriteConcernOptions } from '../types&Interfaces'
+import { DeleteResult, WriteConcernOptions, AnyObject } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
 
-export type DeleteManyMethodParams<M> = {
-   query?: FindQuery<M>
+export type DeleteManyMethodParams = {
+   query?: AnyObject
    writeConcern?: WriteConcernOptions
 }
 
 export type DeleteManyMethodResult = Promise<DeleteResult>
 
-export default async function deleteMany<M>(params: DeleteManyMethodParams<M>, collection: Collection<M>): DeleteManyMethodResult {
+export default async function deleteMany(params: DeleteManyMethodParams, collection: Collection): DeleteManyMethodResult {
    const writeConcern = returnWriteConcern(collection, params.writeConcern)
    if (!params.query) params.query = {}
 

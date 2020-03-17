@@ -1,22 +1,22 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentAfterTransform, OptionalPopulate, OptionalSort, OptionalPagination } from '../types&Interfaces'
+import { Document, OptionalPopulate, OptionalSort, OptionalPagination, AnyObject } from '../types&Interfaces'
 
-export type FindManyAndReturnObjectParams<M> = {
-   query?: FindQuery<M>
-   key?: keyof DocumentAfterTransform<M>
+export type FindManyAndReturnObjectParams = {
+   query?: AnyObject
+   key?: keyof Document
    fields?: string[]
 } & OptionalPopulate &
-   OptionalSort<M> &
+   OptionalSort &
    OptionalPagination
 
-type ObjectReturnType<M> = { [key: string]: DocumentAfterTransform<M> }
+type ObjectReturnType = { [key: string]: Document }
 
-export type FindManyAndReturnObjectResult<M> = Promise<ObjectReturnType<M>>
+export type FindManyAndReturnObjectResult = Promise<ObjectReturnType>
 
-export default async function findManyAndReturnObject<M>(
-   params: FindManyAndReturnObjectParams<M> = {},
-   collection: Collection<M>
-): FindManyAndReturnObjectResult<M> {
+export default async function findManyAndReturnObject(
+   params: FindManyAndReturnObjectParams = {},
+   collection: Collection
+): FindManyAndReturnObjectResult {
    const docs = await collection.findMany({
       query: params.query,
       sort: params.sort,
@@ -25,8 +25,8 @@ export default async function findManyAndReturnObject<M>(
       populate: params.populate,
       fields: params.fields
    })
-   const key: keyof DocumentAfterTransform<M> = params.key || '_id'
-   const o: ObjectReturnType<M> = {}
+   const key: keyof Document = params.key || '_id'
+   const o: ObjectReturnType = {}
 
    docs.forEach(function(doc) {
       if (o[doc[key].toString()]) return

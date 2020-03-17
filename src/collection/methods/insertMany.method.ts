@@ -1,25 +1,25 @@
 import { WriteError } from 'mongodb'
 import { Collection } from '../Collection'
-import { DocumentAfterTransform, InsertWriteOpResult, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
+import { InsertWriteOpResult, WriteConcernOptions, Document } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
 
-type InsertResult<DocType> = {
+type InsertResult = {
    insertedCount: number
    ok: boolean
-   docs: Array<DocumentAfterTransform<DocType> | undefined>
+   docs: Document[]
    errors?: Array<WriteError>
 }
 
-export interface InsertManyMethodParams<M> {
-   entities: Array<ModelWithOptionalId<M>>
+export interface InsertManyMethodParams {
+   entities: Document[]
    ordered?: boolean
    skipWriteError?: boolean
    writeConcern?: WriteConcernOptions
    bypassValidation?: boolean
 }
-export type InsertManyMethodResult<M> = Promise<InsertResult<M>>
+export type InsertManyMethodResult = Promise<InsertResult>
 
-export default async function insertOne<M>(params: InsertManyMethodParams<M>, collection: Collection<M>): InsertManyMethodResult<M> {
+export default async function insertOne(params: InsertManyMethodParams, collection: Collection): InsertManyMethodResult {
    if (params.entities.length === 0) {
       return {
          insertedCount: 0,
@@ -32,7 +32,7 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
 
    if (params.skipWriteError === undefined) params.skipWriteError = false
 
-   const result: InsertWriteOpResult<M> = await collection
+   const result: InsertWriteOpResult = await collection
       .useNative()
       .insertMany(params.entities, {
          ordered: params.ordered || false,
@@ -42,7 +42,7 @@ export default async function insertOne<M>(params: InsertManyMethodParams<M>, co
          bypassDocumentValidation: params.bypassValidation
       })
       .catch(
-         (e): InsertWriteOpResult<M> => {
+         (e): InsertWriteOpResult => {
             if (e.name !== 'BulkWriteError') throw e
             if (params.skipWriteError)
                return {

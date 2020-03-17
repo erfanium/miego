@@ -1,16 +1,16 @@
 import { Collection } from '../Collection'
-import { FindQuery, DeleteResult, WriteConcernOptions } from '../types&Interfaces'
+import { DeleteResult, WriteConcernOptions, AnyObject } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
 
-export type DeleteOneMethodParams<M> = {
-   query?: FindQuery<M>
+export type DeleteOneMethodParams = {
+   query?: AnyObject
    writeConcern?: WriteConcernOptions
    bypassValidation?: boolean
 }
 
 export type DeleteOneMethodResult = Promise<DeleteResult>
 
-export default async function deleteOne<M>(params: DeleteOneMethodParams<M> = {}, collection: Collection<M>): DeleteOneMethodResult {
+export default async function deleteOne(params: DeleteOneMethodParams = {}, collection: Collection): DeleteOneMethodResult {
    const writeConcern = returnWriteConcern(collection, params.writeConcern)
    const result = await collection.useNative().deleteOne(params.query, {
       w: writeConcern.w,

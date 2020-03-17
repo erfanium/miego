@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentAfterTransform, OptionalPopulate, WriteConcernOptions, ModelWithOptionalId } from '../types&Interfaces'
+import { OptionalPopulate, WriteConcernOptions, Document, AnyObject } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndReplaceOption } from 'mongodb'
 
@@ -9,9 +9,9 @@ interface ExtendedFindOneAndReplaceOption extends FindOneAndReplaceOption {
    }
 }
 
-export type FindOneAndReplaceParams<M> = {
-   query?: FindQuery<M>
-   replace: ModelWithOptionalId<M>
+export type FindOneAndReplaceParams = {
+   query?: AnyObject
+   replace: AnyObject
    sort?: string
    writeConcern?: WriteConcernOptions
    new?: boolean
@@ -20,9 +20,9 @@ export type FindOneAndReplaceParams<M> = {
    fields: string[]
 } & OptionalPopulate
 
-export type FindOneAndReplaceResult<M> = Promise<DocumentAfterTransform<M> | undefined>
+export type FindOneAndReplaceResult = Promise<Document | undefined>
 
-export default function findOneAndReplace<M>(params: FindOneAndReplaceParams<M>, collection: Collection<M>): FindOneAndReplaceResult<M> {
+export default function findOneAndReplace(params: FindOneAndReplaceParams, collection: Collection): FindOneAndReplaceResult {
    if (!params.replace) {
       collection.logger.error('Replace field is required!')
       throw new Error('Replace field is required!')

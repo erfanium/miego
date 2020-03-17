@@ -1,10 +1,10 @@
 import { Collection } from './Collection'
-import { DocumentResult } from './types&Interfaces'
 import { ObjectID } from 'mongodb'
 import { isObject } from './utils'
+import { Document } from './types&Interfaces'
 
-interface PopulateDependency<M> {
-   target: Collection<AnyObject>
+interface PopulateDependency {
+   target: Collection
    splittedKeys: SplittedKey[]
    keys: string[]
    requiredIds: ObjectID[]
@@ -15,14 +15,14 @@ interface PopulateDependency<M> {
    result?: AnyObject
 }
 
-interface AnyObject {
+export interface AnyObject {
    [key: string]: unknown
 }
 
 type SplittedKey = string[]
 
 export interface KeySetting {
-   target: Collection<{ [key: string]: unknown }>
+   target: Collection
    params: {
       populate?: string[]
       fields?: string[]
@@ -96,10 +96,10 @@ function replaceIdsFromDocs(docs: AnyObject[], splittedKey: SplittedKey, ids: Ob
    return undefined
 }
 
-export class Populator<M> {
+export class Populator {
    readonly keysSetting: { [key: string]: KeySetting }
 
-   constructor(keysSetting: { [key: string]: KeySetting | Collection<AnyObject> } = {}) {
+   constructor(keysSetting: { [key: string]: KeySetting | Collection } = {}) {
       this.keysSetting = {}
       Object.keys(keysSetting).forEach((keyName: string) => {
          const setting = keysSetting[keyName]
@@ -114,8 +114,8 @@ export class Populator<M> {
       })
    }
 
-   async populate(docs: DocumentResult<M>[], populateKeys: string[]): Promise<DocumentResult<M>[]> {
-      const populateDependencies: PopulateDependency<M>[] = []
+   async populate(docs: Document[], populateKeys: string[]): Promise<AnyObject[]> {
+      const populateDependencies: PopulateDependency[] = []
       const splittedKeys: SplittedKey[] = []
 
       // find dependencies

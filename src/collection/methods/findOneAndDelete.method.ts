@@ -1,16 +1,16 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentAfterTransform, OptionalPopulate } from '../types&Interfaces'
+import { OptionalPopulate, AnyObject, Document } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash } from '../utils'
 import { FindOneAndDeleteOption } from 'mongodb'
 
-export type FindOneAndDeleteParams<M> = {
-   query?: FindQuery<M>
+export type FindOneAndDeleteParams = {
+   query?: AnyObject
    sort?: string
    maxTimeMS?: number
    fields?: string[]
 } & OptionalPopulate
 
-export type FindOneAndDeleteResult<M> = Promise<DocumentAfterTransform<M> | undefined>
+export type FindOneAndDeleteResult = Promise<Document | undefined>
 
 interface ExtendedFindOneAndDeleteOption extends FindOneAndDeleteOption {
    projection?: {
@@ -18,7 +18,7 @@ interface ExtendedFindOneAndDeleteOption extends FindOneAndDeleteOption {
    }
 }
 
-export default function findOneAndDelete<M>(params: FindOneAndDeleteParams<M> = {}, collection: Collection<M>): FindOneAndDeleteResult<M> {
+export default function findOneAndDelete(params: FindOneAndDeleteParams = {}, collection: Collection): FindOneAndDeleteResult {
    const options: ExtendedFindOneAndDeleteOption = {
       maxTimeMS: params.maxTimeMS,
       projection: {}

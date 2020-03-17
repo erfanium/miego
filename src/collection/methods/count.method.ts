@@ -1,8 +1,8 @@
 import { Collection } from '../Collection'
-import { FindQuery } from '../types&Interfaces'
+import { AnyObject } from '../types&Interfaces'
 
-export type CountMethodParams<M> = {
-   query?: FindQuery<M>
+export type CountMethodParams = {
+   query?: AnyObject
    estimated?: boolean
    limit?: number
    skip?: number
@@ -11,7 +11,7 @@ export type CountMethodParams<M> = {
 
 export type CountMethodResult = Promise<number>
 
-export default async function count<M>(params: CountMethodParams<M>, collection: Collection<M>): CountMethodResult {
+export default async function count(params: CountMethodParams, collection: Collection): CountMethodResult {
    if (params.estimated === undefined) params.estimated = false
    const options = {
       limit: params.limit,

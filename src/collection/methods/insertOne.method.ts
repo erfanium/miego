@@ -1,15 +1,15 @@
 import { Collection } from '../Collection'
-import { DocumentAfterTransform, ModelWithOptionalId, WriteConcernOptions } from '../types&Interfaces'
+import { Document, WriteConcernOptions } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
 
-export interface InsertOneMethodParams<M> {
-   entity: ModelWithOptionalId<M>
+export interface InsertOneMethodParams {
+   entity: Document
    writeConcern?: WriteConcernOptions
 }
 
-export type InsertOneMethodResult<M> = Promise<DocumentAfterTransform<M>>
+export type InsertOneMethodResult = Promise<Document>
 
-export default async function insertOne<M>(params: InsertOneMethodParams<M>, collection: Collection<M>): InsertOneMethodResult<M> {
+export default async function insertOne(params: InsertOneMethodParams, collection: Collection): InsertOneMethodResult {
    const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
    const doc = await collection

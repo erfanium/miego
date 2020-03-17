@@ -1,16 +1,16 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentAfterTransform, OptionalPopulate, CurserOptions, ExtendedFindOneOptions } from '../types&Interfaces'
+import { Document, OptionalPopulate, CurserOptions, ExtendedFindOneOptions, AnyObject } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnPageSize } from '../utils'
 
-export type FindManyMethodParams<M> = {
-   query?: FindQuery<M>
+export type FindManyMethodParams = {
+   query?: AnyObject
    fields?: string[]
 } & OptionalPopulate &
-   CurserOptions<M>
+   CurserOptions
 
-export type FindManyMethodResult<M> = Promise<Array<DocumentAfterTransform<M> | undefined>>
+export type FindManyMethodResult = Promise<Document[]>
 
-export default function findMany<M>(params: FindManyMethodParams<M> = {}, collection: Collection<M>): FindManyMethodResult<M> {
+export default function findMany(params: FindManyMethodParams = {}, collection: Collection): FindManyMethodResult {
    const options: ExtendedFindOneOptions = {
       projection: {}
    }

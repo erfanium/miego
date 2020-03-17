@@ -1,17 +1,17 @@
-import { FindQuery, DocumentAfterTransform, OptionalPopulate, ExtendedFindOneOptions } from '../types&Interfaces'
+import { Document, OptionalPopulate, ExtendedFindOneOptions, AnyObject } from '../types&Interfaces'
 import { Collection } from '../Collection'
 import { decodeSortDash, decodeFieldDash } from '../utils'
 
-export type FindOneMethodParams<M> = {
-   query?: FindQuery<M>
+export type FindOneMethodParams = {
+   query?: AnyObject
    sort?: string
    fields?: string[]
    skip?: number
 } & OptionalPopulate
 
-export type FindOneMethodResult<M> = Promise<DocumentAfterTransform<M> | undefined>
+export type FindOneMethodResult = Promise<Document | undefined>
 
-export default function findOne<M>(params: FindOneMethodParams<M> = {}, collection: Collection<M>): FindOneMethodResult<M> {
+export default function findOne(params: FindOneMethodParams = {}, collection: Collection): FindOneMethodResult {
    const options: ExtendedFindOneOptions = {
       skip: params.skip,
       projection: {}
@@ -34,7 +34,7 @@ export default function findOne<M>(params: FindOneMethodParams<M> = {}, collecti
    return collection
       .useNative()
       .findOne(params.query, options)
-      .then(async (doc: DocumentAfterTransform<M>) => {
+      .then(async (doc: Document) => {
          collection.transformDocument(doc)
          if (params.populate) await collection.populator.populate([doc], params.populate)
          return doc

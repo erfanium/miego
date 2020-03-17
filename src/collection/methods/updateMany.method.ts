@@ -1,10 +1,10 @@
 import { Collection } from '../Collection'
-import { FindQuery, UpdateResult, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
+import { UpdateResult, WriteConcernOptions, AnyObject } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
 
-export type UpdateManyMethodParams<M> = {
-   query?: FindQuery<M>
-   update: UpdateQuery<M>
+export type UpdateManyMethodParams = {
+   query?: AnyObject
+   update: AnyObject
    upsert?: boolean
    arrayFilters?: object[]
    writeConcern?: WriteConcernOptions
@@ -12,10 +12,7 @@ export type UpdateManyMethodParams<M> = {
 
 export type UpdateManyMethodResult = Promise<UpdateResult>
 
-export default async function updateMany<M>(
-   params: UpdateManyMethodParams<M> = { update: {} },
-   collection: Collection<M>
-): UpdateManyMethodResult {
+export default async function updateMany(params: UpdateManyMethodParams = { update: {} }, collection: Collection): UpdateManyMethodResult {
    const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
    const result = await collection.useNative().updateMany(params.query, params.update, {

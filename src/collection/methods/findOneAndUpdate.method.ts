@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentAfterTransform, OptionalPopulate, WriteConcernOptions, UpdateQuery } from '../types&Interfaces'
+import { OptionalPopulate, WriteConcernOptions, AnyObject, Document } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndUpdateOption } from 'mongodb'
 
@@ -9,9 +9,9 @@ interface ExtendedFindOneAndUpdateOption extends FindOneAndUpdateOption {
    }
 }
 
-export type FindOneAndUpdateParams<M> = {
-   query?: FindQuery<M>
-   update?: UpdateQuery<M>
+export type FindOneAndUpdateParams = {
+   query?: AnyObject
+   update?: AnyObject
    sort?: string
    writeConcern?: WriteConcernOptions
    new?: boolean
@@ -22,9 +22,9 @@ export type FindOneAndUpdateParams<M> = {
    fields?: string[]
 } & OptionalPopulate
 
-export type FindOneAndUpdateResult<M> = Promise<DocumentAfterTransform<M> | undefined>
+export type FindOneAndUpdateResult = Promise<Document | undefined>
 
-export default function findOneAndUpdate<M>(params: FindOneAndUpdateParams<M> = {}, collection: Collection<M>): FindOneAndUpdateResult<M> {
+export default function findOneAndUpdate(params: FindOneAndUpdateParams = {}, collection: Collection): FindOneAndUpdateResult {
    const writeConcern = returnWriteConcern(collection, params.writeConcern)
 
    const options: ExtendedFindOneAndUpdateOption = {

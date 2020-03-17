@@ -1,25 +1,25 @@
 import { Collection } from '../Collection'
-import { DocumentAfterTransform } from '../types&Interfaces'
+import { Document } from '../types&Interfaces'
 import findMany, { FindManyMethodParams } from './findMany.method'
 import count from './count.method'
 import { returnPageSize } from '../utils'
 
-export interface ListParams<M> extends FindManyMethodParams<M> {
+export interface ListParams extends FindManyMethodParams {
    page?: number
    estimated?: boolean
 }
 
-interface ObjectReturnType<M> {
-   docs: DocumentAfterTransform<M>[]
+interface ObjectReturnType {
+   docs: Document[]
    nResults: number
    page: number
    pageSize: number
    totalPages: number
 }
 
-export type ListResult<M> = Promise<ObjectReturnType<M>>
+export type ListResult = Promise<ObjectReturnType>
 
-export default async function list<M>(params: ListParams<M> = { page: 1 }, collection: Collection<M>): ListResult<M> {
+export default async function list(params: ListParams = { page: 1 }, collection: Collection): ListResult {
    const docsP = findMany(params, collection)
    const countP = count(
       {

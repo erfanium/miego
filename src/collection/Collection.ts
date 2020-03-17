@@ -15,7 +15,7 @@ import list, { ListParams, ListResult } from './methods/list.method'
 import updateMany, { UpdateManyMethodParams, UpdateManyMethodResult } from './methods/updateMany.method'
 import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne.method'
 import { KeySetting, Populator } from './Populator'
-import { AnyObject, DocumentAfterTransform, DocumentResult, WriteConcernOptions } from './types&Interfaces'
+import { AnyObject, WriteConcernOptions, Document } from './types&Interfaces'
 
 type Indexes = [string | unknown, IndexOptions?][]
 
@@ -27,7 +27,7 @@ export interface ConstructorSettings {
       createdAt?: boolean
    }
    populates?: {
-      [key: string]: KeySetting | Collection<AnyObject>
+      [key: string]: KeySetting | Collection
    }
    indexes?: Indexes
    dropAdditionalIndexes?: boolean
@@ -66,7 +66,7 @@ export interface ValidModel {
    [key: string]: unknown
 }
 
-export class Collection<M> {
+export class Collection {
    public readonly name: string
    base: mongodb.Collection
    client: mongodb.MongoClient
@@ -75,7 +75,7 @@ export class Collection<M> {
    settings: Settings
    logger: Logger
    indexesName: string[]
-   readonly populator: Populator<M>
+   readonly populator: Populator
 
    constructor(name: string, settings: ConstructorSettings = {}) {
       this.settings = merge(defaultSettings, settings)
@@ -108,9 +108,9 @@ export class Collection<M> {
       if (!this.connected) throw new Error('Collection does not have client yet')
       throw new Error('Something went wrong - No base found')
    }
-   transformDocument(d: DocumentResult<M>): DocumentAfterTransform<M> {
+   transformDocument(d: Document): Document {
       if (!d) return undefined
-      const result: DocumentAfterTransform<M> = d
+      const result: AnyObject = d
       if (d._id && this.settings.transform.createdAt) result._createdAt = d._id.getTimestamp()
 
       return result
@@ -142,43 +142,43 @@ export class Collection<M> {
       }
       this.logger.debug('No additional index found')
    }
-   findOne(params: FindOneMethodParams<M>): FindOneMethodResult<M> {
+   findOne(params: FindOneMethodParams): FindOneMethodResult {
       return findOne(params, this)
    }
-   findMany(params: FindManyMethodParams<M>): FindManyMethodResult<M> {
-      return findMany<M>(params, this)
+   findMany(params: FindManyMethodParams): FindManyMethodResult {
+      return findMany(params, this)
    }
-   insertOne(params: InsertOneMethodParams<M>): InsertOneMethodResult<M> {
-      return insertOne<M>(params, this)
+   insertOne(params: InsertOneMethodParams): InsertOneMethodResult {
+      return insertOne(params, this)
    }
-   insertMany(params: InsertManyMethodParams<M>): InsertManyMethodResult<M> {
-      return insertMany<M>(params, this)
+   insertMany(params: InsertManyMethodParams): InsertManyMethodResult {
+      return insertMany(params, this)
    }
-   deleteOne(params: DeleteOneMethodParams<M>): DeleteOneMethodResult {
-      return deleteOne<M>(params, this)
+   deleteOne(params: DeleteOneMethodParams): DeleteOneMethodResult {
+      return deleteOne(params, this)
    }
-   deleteMany(params: DeleteManyMethodParams<M> = {}): DeleteManyMethodResult {
-      return deleteMany<M>(params, this)
+   deleteMany(params: DeleteManyMethodParams = {}): DeleteManyMethodResult {
+      return deleteMany(params, this)
    }
-   updateOne(params: UpdateOneMethodParams<M>): UpdateOneMethodResult {
-      return updateOne<M>(params, this)
+   updateOne(params: UpdateOneMethodParams): UpdateOneMethodResult {
+      return updateOne(params, this)
    }
-   updateMany(params: UpdateManyMethodParams<M>): UpdateManyMethodResult {
-      return updateMany<M>(params, this)
+   updateMany(params: UpdateManyMethodParams): UpdateManyMethodResult {
+      return updateMany(params, this)
    }
-   count(params: CountMethodParams<M>): CountMethodResult {
-      return count<M>(params, this)
+   count(params: CountMethodParams): CountMethodResult {
+      return count(params, this)
    }
-   findOneAndDelete(params: FindOneAndDeleteParams<M>): FindOneAndDeleteResult<M> {
-      return findOneAndDelete<M>(params, this)
+   findOneAndDelete(params: FindOneAndDeleteParams): FindOneAndDeleteResult {
+      return findOneAndDelete(params, this)
    }
-   findOneAndUpdate(params: FindOneAndUpdateParams<M>): FindOneAndUpdateResult<M> {
-      return findOneAndUpdate<M>(params, this)
+   findOneAndUpdate(params: FindOneAndUpdateParams): FindOneAndUpdateResult {
+      return findOneAndUpdate(params, this)
    }
-   findManyAndReturnObject(params: FindManyAndReturnObjectParams<M>): FindManyAndReturnObjectResult<M> {
-      return findManyAndReturnObject<M>(params, this)
+   findManyAndReturnObject(params: FindManyAndReturnObjectParams): FindManyAndReturnObjectResult {
+      return findManyAndReturnObject(params, this)
    }
-   list(params: ListParams<M>): ListResult<M> {
-      return list<M>(params, this)
+   list(params: ListParams): ListResult {
+      return list(params, this)
    }
 }

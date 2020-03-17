@@ -1,17 +1,14 @@
 import { Collection } from '../Collection'
-import { FindQuery, DocumentAfterTransform, OptionalPopulate } from '../types&Interfaces'
+import { Document, OptionalPopulate, AnyObject } from '../types&Interfaces'
 
-export type FindManyAndDeleteParams<M> = {
-   query?: FindQuery<M>
+export type FindManyAndDeleteParams = {
+   query?: AnyObject
    fields?: string[]
 } & OptionalPopulate
 
-export type FindManyAndDeleteResult<M> = Promise<DocumentAfterTransform<M>[] | undefined>
+export type FindManyAndDeleteResult = Promise<Document[] | undefined>
 
-export default async function findManyAndDelete<M>(
-   params: FindManyAndDeleteParams<M> = {},
-   collection: Collection<M>
-): FindManyAndDeleteResult<M> {
+export default async function findManyAndDelete(params: FindManyAndDeleteParams = {}, collection: Collection): FindManyAndDeleteResult {
    const oldDocs = await collection.findMany({
       query: params.query,
       populate: params.populate,

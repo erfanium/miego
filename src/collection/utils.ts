@@ -16,9 +16,9 @@ export function isObject(a: unknown): boolean {
    return !!a && a.constructor === Object
 }
 
-export function returnPageSize<M>(collection: Collection<M>, paramPageSize?: number): number {
+export function returnPageSize(collection: Collection, paramPageSize?: number): number {
    return paramPageSize || collection.settings.pagination.defaultPageSize || 10
 }
-export function returnWriteConcern<M>(collection: Collection<M>, paramWC?: WriteConcernOptions): WriteConcernOptions {
+export function returnWriteConcern(collection: Collection, paramWC?: WriteConcernOptions): WriteConcernOptions {
    return merge(collection.settings.writeConcern, paramWC) || {}
 }
