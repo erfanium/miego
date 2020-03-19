@@ -2,19 +2,14 @@ import { Collection, MongoClient } from '../../src/index'
 import { ObjectID } from 'mongodb'
 import config from '../config'
 
-interface User {
-   name: string
-   age: number
-}
-
 let client: MongoClient
-let users: Collection<User>
+let users: Collection
 
 beforeAll(async () => {
    if (!client) {
       client = new MongoClient(config.MongoUrl)
       await client.connect()
-      if (!users) users = new Collection<User>('users', { client })
+      if (!users) users = new Collection('users', { client })
 
       users
          .useNative()

@@ -1,5 +1,4 @@
 import { Collection, MongoClient } from '../../src/index'
-import { ObjectID } from 'mongodb'
 import config from '../config'
 
 let client: MongoClient
@@ -11,18 +10,11 @@ beforeAll(async () => {
 })
 
 describe('populates', () => {
-   interface User {
-      name: string
-   }
-   interface Post {
-      creator: ObjectID
-      text: string
-   }
-   let users: Collection<User>
-   let posts: Collection<Post>
+   let users: Collection
+   let posts: Collection
 
    beforeAll(async () => {
-      if (!users) users = new Collection<User>('users', { client })
+      if (!users) users = new Collection('users', { client })
       if (!posts) {
          posts = new Collection('posts', {
             client,
