@@ -1,7 +1,7 @@
 import { WriteError } from 'mongodb'
-import { Collection } from '../Collection'
 import { InsertWriteOpResult, WriteConcernOptions, Document } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
+import { Collection } from 'collection/Collection'
 
 type InsertResult = {
    insertedCount: number
@@ -19,7 +19,7 @@ export interface InsertManyMethodParams {
 }
 export type InsertManyMethodResult = Promise<InsertResult>
 
-export default async function insertOne(params: InsertManyMethodParams, collection: Collection): InsertManyMethodResult {
+export default async function insertOne(this: Collection, params: InsertManyMethodParams): InsertManyMethodResult {
    if (params.entities.length === 0) {
       return {
          insertedCount: 0,
@@ -28,12 +28,11 @@ export default async function insertOne(params: InsertManyMethodParams, collecti
       }
    }
 
-   const writeConcern = returnWriteConcern(collection, params.writeConcern)
+   const writeConcern = returnWriteConcern(this, params.writeConcern)
 
    if (params.skipWriteError === undefined) params.skipWriteError = false
 
-   const result: InsertWriteOpResult = await collection
-      .useNative()
+   const result: InsertWriteOpResult = await this.base
       .insertMany(params.entities, {
          ordered: params.ordered || false,
          w: writeConcern.w,
@@ -58,7 +57,7 @@ export default async function insertOne(params: InsertManyMethodParams, collecti
    return {
       insertedCount: result.insertedCount,
       ok: result.result.ok === 1,
-      docs: result.ops.map((doc) => collection.transformDocument(doc)),
+      docs: result.ops.map((doc) => this.transformDocument(doc)),
       errors: result.result.errors
    }
 }

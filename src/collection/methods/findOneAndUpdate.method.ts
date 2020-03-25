@@ -1,7 +1,7 @@
-import { Collection } from '../Collection'
 import { OptionalPopulate, WriteConcernOptions, AnyObject, Document } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndUpdateOption } from 'mongodb'
+import { Collection } from 'collection/Collection'
 
 interface ExtendedFindOneAndUpdateOption extends FindOneAndUpdateOption {
    projection?: {
@@ -24,8 +24,8 @@ export type FindOneAndUpdateParams = {
 
 export type FindOneAndUpdateResult = Promise<Document | undefined>
 
-export default function findOneAndUpdate(params: FindOneAndUpdateParams = {}, collection: Collection): FindOneAndUpdateResult {
-   const writeConcern = returnWriteConcern(collection, params.writeConcern)
+export default function findOneAndUpdate(this: Collection, params: FindOneAndUpdateParams = {}): FindOneAndUpdateResult {
+   const writeConcern = returnWriteConcern(this, params.writeConcern)
 
    const options: ExtendedFindOneAndUpdateOption = {
       w: writeConcern.w,
@@ -49,10 +49,7 @@ export default function findOneAndUpdate(params: FindOneAndUpdateParams = {}, co
          options.projection[fieldKey] = enabled
       })
    }
-   return collection
-      .useNative()
-      .findOneAndUpdate(params.query, params.update, options)
-      .then((result) => {
-         return collection.transformDocument(result.value)
-      })
+   return this.base.findOneAndUpdate(params.query, params.update, options).then((result) => {
+      return this.transformDocument(result.value)
+   })
 }

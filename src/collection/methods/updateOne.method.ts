@@ -12,10 +12,10 @@ export type UpdateOneMethodParams = {
 
 export type UpdateOneMethodResult = Promise<UpdateResult>
 
-export default async function updateOne(params: UpdateOneMethodParams = { update: {} }, collection: Collection): UpdateOneMethodResult {
-   const writeConcern = returnWriteConcern(collection, params.writeConcern)
+export default async function updateOne(this: Collection, params: UpdateOneMethodParams = { update: {} }): UpdateOneMethodResult {
+   const writeConcern = returnWriteConcern(this, params.writeConcern)
 
-   const result = await collection.useNative().updateOne(params.query, params.update, {
+   const result = await this.base.updateOne(params.query, params.update, {
       upsert: params.upsert || false,
       arrayFilters: params.arrayFilters,
       j: writeConcern.j,

@@ -1,7 +1,7 @@
-import { Collection } from '../Collection'
 import { OptionalPopulate, WriteConcernOptions, Document, AnyObject } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnWriteConcern } from '../utils'
 import { FindOneAndReplaceOption } from 'mongodb'
+import { Collection } from 'collection/Collection'
 
 interface ExtendedFindOneAndReplaceOption extends FindOneAndReplaceOption {
    projection?: {
@@ -22,12 +22,12 @@ export type FindOneAndReplaceParams = {
 
 export type FindOneAndReplaceResult = Promise<Document | undefined>
 
-export default function findOneAndReplace(params: FindOneAndReplaceParams, collection: Collection): FindOneAndReplaceResult {
+export default function findOneAndReplace(this: Collection, params: FindOneAndReplaceParams): FindOneAndReplaceResult {
    if (!params.replace) {
-      collection.logger.error('Replace field is required!')
+      this.logger.error('Replace field is required!')
       throw new Error('Replace field is required!')
    }
-   const writeConcern = returnWriteConcern(collection, params.writeConcern)
+   const writeConcern = returnWriteConcern(this, params.writeConcern)
 
    const options: ExtendedFindOneAndReplaceOption = {
       w: writeConcern.w,
@@ -51,10 +51,7 @@ export default function findOneAndReplace(params: FindOneAndReplaceParams, colle
          [sortKey]: direction
       }
    }
-   return collection
-      .useNative()
-      .findOneAndReplace(params.query, params.replace, options)
-      .then((result) => {
-         return collection.transformDocument(result.value)
-      })
+   return this.base.findOneAndReplace(params.query, params.replace, options).then((result) => {
+      return this.transformDocument(result.value)
+   })
 }

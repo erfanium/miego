@@ -1,19 +1,19 @@
 import mongodb, { IndexOptions } from 'mongodb'
 import { merge } from 'ramda'
 import { Logger } from '../Logger'
-import count, { CountMethodParams, CountMethodResult } from './methods/count.method'
-import deleteMany, { DeleteManyMethodParams, DeleteManyMethodResult } from './methods/deleteMany.method'
-import deleteOne, { DeleteOneMethodParams, DeleteOneMethodResult } from './methods/deleteOne.method'
-import findMany, { FindManyMethodParams, FindManyMethodResult } from './methods/findMany.method'
-import findManyAndReturnObject, { FindManyAndReturnObjectParams, FindManyAndReturnObjectResult } from './methods/findManyAndReturnObject.method'
-import findOne, { FindOneMethodParams, FindOneMethodResult } from './methods/findOne.method'
-import findOneAndDelete, { FindOneAndDeleteParams, FindOneAndDeleteResult } from './methods/findOneAndDelete.method'
-import findOneAndUpdate, { FindOneAndUpdateParams, FindOneAndUpdateResult } from './methods/findOneAndUpdate.method'
-import insertMany, { InsertManyMethodParams, InsertManyMethodResult } from './methods/insertMany.method'
-import insertOne, { InsertOneMethodParams, InsertOneMethodResult } from './methods/insertOne.method'
-import list, { ListParams, ListResult } from './methods/list.method'
-import updateMany, { UpdateManyMethodParams, UpdateManyMethodResult } from './methods/updateMany.method'
-import updateOne, { UpdateOneMethodParams, UpdateOneMethodResult } from './methods/updateOne.method'
+import count from './methods/count.method'
+import deleteMany from './methods/deleteMany.method'
+import deleteOne from './methods/deleteOne.method'
+import findMany from './methods/findMany.method'
+import findManyAndReturnObject from './methods/findManyAndReturnObject.method'
+import findOne from './methods/findOne.method'
+import findOneAndDelete from './methods/findOneAndDelete.method'
+import findOneAndUpdate from './methods/findOneAndUpdate.method'
+import insertMany from './methods/insertMany.method'
+import insertOne from './methods/insertOne.method'
+import list from './methods/list.method'
+import updateMany from './methods/updateMany.method'
+import updateOne from './methods/updateOne.method'
 import { KeySetting, Populator } from './Populator'
 import { AnyObject, WriteConcernOptions, Document } from './types&Interfaces'
 
@@ -103,8 +103,6 @@ export class Collection {
    }
    useNative(): mongodb.Collection {
       if (this.base) return this.base
-      // if (this.client) return this.setClient(this.client)
-
       if (!this.connected) throw new Error('Collection does not have client yet')
       throw new Error('Something went wrong - No base found')
    }
@@ -112,7 +110,6 @@ export class Collection {
       if (!d) return undefined
       const result: AnyObject = d
       if (d._id && this.settings.transform.createdAt) result._createdAt = d._id.getTimestamp()
-
       return result
    }
    async initializeCollectionInDatabase(): Promise<void> {
@@ -142,43 +139,17 @@ export class Collection {
       }
       this.logger.debug('No additional index found')
    }
-   findOne(params: FindOneMethodParams): FindOneMethodResult {
-      return findOne(params, this)
-   }
-   findMany(params: FindManyMethodParams): FindManyMethodResult {
-      return findMany(params, this)
-   }
-   insertOne(params: InsertOneMethodParams): InsertOneMethodResult {
-      return insertOne(params, this)
-   }
-   insertMany(params: InsertManyMethodParams): InsertManyMethodResult {
-      return insertMany(params, this)
-   }
-   deleteOne(params: DeleteOneMethodParams): DeleteOneMethodResult {
-      return deleteOne(params, this)
-   }
-   deleteMany(params: DeleteManyMethodParams = {}): DeleteManyMethodResult {
-      return deleteMany(params, this)
-   }
-   updateOne(params: UpdateOneMethodParams): UpdateOneMethodResult {
-      return updateOne(params, this)
-   }
-   updateMany(params: UpdateManyMethodParams): UpdateManyMethodResult {
-      return updateMany(params, this)
-   }
-   count(params: CountMethodParams): CountMethodResult {
-      return count(params, this)
-   }
-   findOneAndDelete(params: FindOneAndDeleteParams): FindOneAndDeleteResult {
-      return findOneAndDelete(params, this)
-   }
-   findOneAndUpdate(params: FindOneAndUpdateParams): FindOneAndUpdateResult {
-      return findOneAndUpdate(params, this)
-   }
-   findManyAndReturnObject(params: FindManyAndReturnObjectParams): FindManyAndReturnObjectResult {
-      return findManyAndReturnObject(params, this)
-   }
-   list(params: ListParams): ListResult {
-      return list(params, this)
-   }
+   findOne = findOne
+   findMany = findMany
+   insertOne = insertOne
+   insertMany = insertMany
+   deleteOne = deleteOne
+   deleteMany = deleteMany
+   updateOne = updateOne
+   updateMany = updateMany
+   count = count
+   findOneAndDelete = findOneAndDelete
+   findOneAndUpdate = findOneAndUpdate
+   findManyAndReturnObject = findManyAndReturnObject
+   list = list
 }

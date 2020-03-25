@@ -1,6 +1,6 @@
-import { Collection } from '../Collection'
 import { DeleteResult, WriteConcernOptions, AnyObject } from '../types&Interfaces'
 import { returnWriteConcern } from '../utils'
+import { Collection } from 'collection/Collection'
 
 export type DeleteOneMethodParams = {
    query?: AnyObject
@@ -10,9 +10,9 @@ export type DeleteOneMethodParams = {
 
 export type DeleteOneMethodResult = Promise<DeleteResult>
 
-export default async function deleteOne(params: DeleteOneMethodParams = {}, collection: Collection): DeleteOneMethodResult {
-   const writeConcern = returnWriteConcern(collection, params.writeConcern)
-   const result = await collection.useNative().deleteOne(params.query, {
+export default async function deleteOne(this: Collection, params: DeleteOneMethodParams = {}): DeleteOneMethodResult {
+   const writeConcern = returnWriteConcern(this, params.writeConcern)
+   const result = await this.base.deleteOne(params.query, {
       w: writeConcern.w,
       j: writeConcern.j,
       wtimeout: writeConcern.wtimeout,

@@ -9,11 +9,10 @@ export interface InsertOneMethodParams {
 
 export type InsertOneMethodResult = Promise<Document>
 
-export default async function insertOne(params: InsertOneMethodParams, collection: Collection): InsertOneMethodResult {
-   const writeConcern = returnWriteConcern(collection, params.writeConcern)
+export default async function insertOne(this: Collection, params: InsertOneMethodParams): InsertOneMethodResult {
+   const writeConcern = returnWriteConcern(this, params.writeConcern)
 
-   const doc = await collection
-      .useNative()
+   const doc = await this.base
       .insertOne(params.entity, {
          w: writeConcern.w,
          j: writeConcern.j,
@@ -21,5 +20,5 @@ export default async function insertOne(params: InsertOneMethodParams, collectio
       })
       .then((r) => r.ops[0])
 
-   return collection.transformDocument(doc)
+   return this.transformDocument(doc)
 }

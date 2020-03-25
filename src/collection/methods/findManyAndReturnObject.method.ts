@@ -1,5 +1,5 @@
-import { Collection } from '../Collection'
 import { Document, OptionalPopulate, OptionalSort, OptionalPagination, AnyObject } from '../types&Interfaces'
+import { Collection } from 'collection/Collection'
 
 export type FindManyAndReturnObjectParams = {
    query?: AnyObject
@@ -11,13 +11,8 @@ export type FindManyAndReturnObjectParams = {
 
 type ObjectReturnType = { [key: string]: Document }
 
-export type FindManyAndReturnObjectResult = Promise<ObjectReturnType>
-
-export default async function findManyAndReturnObject(
-   params: FindManyAndReturnObjectParams = {},
-   collection: Collection
-): FindManyAndReturnObjectResult {
-   const docs = await collection.findMany({
+export default async function findManyAndReturnObject(this: Collection, params: FindManyAndReturnObjectParams = {}): Promise<ObjectReturnType> {
+   const docs = await this.findMany({
       query: params.query,
       sort: params.sort,
       page: params.page,
@@ -28,9 +23,9 @@ export default async function findManyAndReturnObject(
    const key: keyof Document = params.key || '_id'
    const o: ObjectReturnType = {}
 
-   docs.forEach(function(doc) {
+   docs.forEach((doc: Document) => {
       if (o[doc[key].toString()]) return
-      o[doc[key].toString()] = collection.transformDocument(doc)
+      o[doc[key].toString()] = this.transformDocument(doc)
    })
 
    return o

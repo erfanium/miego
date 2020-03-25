@@ -1,8 +1,7 @@
-import { Collection } from '../Collection'
 import { Document } from '../types&Interfaces'
-import findMany, { FindManyMethodParams } from './findMany.method'
-import count from './count.method'
+import { FindManyMethodParams } from './findMany.method'
 import { returnPageSize } from '../utils'
+import { Collection } from 'collection/Collection'
 
 export interface ListParams extends FindManyMethodParams {
    page?: number
@@ -19,17 +18,14 @@ interface ObjectReturnType {
 
 export type ListResult = Promise<ObjectReturnType>
 
-export default async function list(params: ListParams = { page: 1 }, collection: Collection): ListResult {
-   const docsP = findMany(params, collection)
-   const countP = count(
-      {
-         query: params.query,
-         estimated: params.estimated || true
-      },
-      collection
-   )
+export default async function list(this: Collection, params: ListParams = { page: 1 }): ListResult {
+   const docsP = this.findMany(params)
+   const countP = this.count({
+      query: params.query,
+      estimated: params.estimated || true
+   })
    const [docs, nResults] = await Promise.all([docsP, countP])
-   const pageSize = returnPageSize(collection, params.pageSize)
+   const pageSize = returnPageSize(this, params.pageSize)
 
    return {
       docs,

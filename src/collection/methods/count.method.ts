@@ -1,5 +1,5 @@
-import { Collection } from '../Collection'
 import { AnyObject } from '../types&Interfaces'
+import { Collection } from 'collection/Collection'
 
 export type CountMethodParams = {
    query?: AnyObject
@@ -11,7 +11,7 @@ export type CountMethodParams = {
 
 export type CountMethodResult = Promise<number>
 
-export default async function count(params: CountMethodParams, collection: Collection): CountMethodResult {
+export default async function count(this: Collection, params: CountMethodParams): CountMethodResult {
    if (params.estimated === undefined) params.estimated = false
    const options = {
       limit: params.limit,
@@ -20,7 +20,7 @@ export default async function count(params: CountMethodParams, collection: Colle
    }
 
    if (!params.estimated) {
-      return collection.useNative().countDocuments(params.query, options)
+      return this.base.countDocuments(params.query, options)
    }
-   return collection.useNative().estimatedDocumentCount(params.query, options)
+   return this.base.estimatedDocumentCount(params.query, options)
 }

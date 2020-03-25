@@ -1,6 +1,6 @@
-import { Collection } from '../Collection'
 import { Document, OptionalPopulate, CurserOptions, ExtendedFindOneOptions, AnyObject } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash, returnPageSize } from '../utils'
+import { Collection } from 'collection/Collection'
 
 export type FindManyMethodParams = {
    query?: AnyObject
@@ -10,7 +10,7 @@ export type FindManyMethodParams = {
 
 export type FindManyMethodResult = Promise<Document[]>
 
-export default function findMany(params: FindManyMethodParams = {}, collection: Collection): FindManyMethodResult {
+export default function findMany(this: Collection, params: FindManyMethodParams = {}): FindManyMethodResult {
    const options: ExtendedFindOneOptions = {
       projection: {}
    }
@@ -22,10 +22,10 @@ export default function findMany(params: FindManyMethodParams = {}, collection: 
       })
    }
 
-   const curser = collection.useNative().find(params.query, options)
+   const curser = this.base.find(params.query, options)
 
    if (params.page) {
-      const pageSize = returnPageSize(collection, params.pageSize)
+      const pageSize = returnPageSize(this, params.pageSize)
       curser.limit(pageSize)
       curser.skip((params.page - 1) * pageSize)
    }
@@ -35,12 +35,12 @@ export default function findMany(params: FindManyMethodParams = {}, collection: 
       curser.sort(sortKey, direction)
    }
 
-   curser.map((doc) => {
-      return collection.transformDocument(doc)
+   curser.map((doc: Document) => {
+      return this.transformDocument(doc)
    })
 
-   return curser.toArray().then(async (docs) => {
-      if (params.populate) await collection.populator.populate(docs, params.populate)
+   return curser.toArray().then(async (docs: Document[]) => {
+      if (params.populate) await this.populator.populate(docs, params.populate)
       return docs
    })
 }

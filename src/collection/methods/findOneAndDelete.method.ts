@@ -1,7 +1,7 @@
-import { Collection } from '../Collection'
 import { OptionalPopulate, AnyObject, Document } from '../types&Interfaces'
 import { decodeSortDash, decodeFieldDash } from '../utils'
 import { FindOneAndDeleteOption } from 'mongodb'
+import { Collection } from 'collection/Collection'
 
 export type FindOneAndDeleteParams = {
    query?: AnyObject
@@ -18,7 +18,7 @@ interface ExtendedFindOneAndDeleteOption extends FindOneAndDeleteOption {
    }
 }
 
-export default function findOneAndDelete(params: FindOneAndDeleteParams = {}, collection: Collection): FindOneAndDeleteResult {
+export default function findOneAndDelete(this: Collection, params: FindOneAndDeleteParams = {}): FindOneAndDeleteResult {
    const options: ExtendedFindOneAndDeleteOption = {
       maxTimeMS: params.maxTimeMS,
       projection: {}
@@ -36,10 +36,9 @@ export default function findOneAndDelete(params: FindOneAndDeleteParams = {}, co
          [sortKey]: direction
       }
    }
-   return collection
-      .useNative()
+   return this.useNative()
       .findOneAndDelete(params.query, options)
       .then((result) => {
-         return collection.transformDocument(result.value)
+         return this.transformDocument(result.value)
       })
 }

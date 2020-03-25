@@ -1,5 +1,5 @@
-import { Collection } from '../Collection'
 import { Document, OptionalPopulate, AnyObject } from '../types&Interfaces'
+import { Collection } from 'collection/Collection'
 
 export type FindManyAndDeleteParams = {
    query?: AnyObject
@@ -8,14 +8,14 @@ export type FindManyAndDeleteParams = {
 
 export type FindManyAndDeleteResult = Promise<Document[] | undefined>
 
-export default async function findManyAndDelete(params: FindManyAndDeleteParams = {}, collection: Collection): FindManyAndDeleteResult {
-   const oldDocs = await collection.findMany({
+export default async function findManyAndDelete(this: Collection, params: FindManyAndDeleteParams = {}): FindManyAndDeleteResult {
+   const oldDocs = await this.findMany({
       query: params.query,
       populate: params.populate,
       fields: params.fields
    })
 
-   await collection.deleteMany({
+   await this.deleteMany({
       query: params.query
    })
    return oldDocs

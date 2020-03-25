@@ -1,6 +1,6 @@
 {
    "name": "miego",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "Better way to use mongoDB",
    "repository": {
       "type": "git",
@@ -23,7 +23,6 @@
    "license": "MIT",
    "dependencies": {
       "@types/mongodb": "^3.5.2",
-      "mongodb": "^3.5.5",
       "ramda": "^0.27.0"
    },
    "lint-staged": {
@@ -50,6 +49,7 @@
       "husky": "^4.2.3",
       "jest": "^25.1.0",
       "lint-staged": "^10.0.8",
+      "mongodb": "^3.5.5",
       "ts-jest": "^25.2.1",
       "ts-node": "^8.6.2",
       "typescript": "^3.8.2"

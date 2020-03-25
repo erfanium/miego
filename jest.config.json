@@ -11,5 +11,5 @@
    "collectCoverage": true,
    "collectCoverageFrom": ["<rootDir>/src/**/*.ts"],
    "coverageDirectory": "./coverage",
-   "coveragePathIgnorePatterns": ["/src/collection/methods", "/dist", "/node_modules/", "__mocks__"]
+   "coveragePathIgnorePatterns": ["/dist", "/node_modules/", "__mocks__"]
 }
